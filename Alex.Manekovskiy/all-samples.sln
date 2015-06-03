@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tcp-listener", "tcp-listener\tcp-listener.csproj", "{C4087ECA-0F86-4A42-9163-99EBCF52A3D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tcp-client", "tcp-client\tcp-client.csproj", "{ED4DCFDA-0EF5-43C1-8128-E2826E54B9D9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C4087ECA-0F86-4A42-9163-99EBCF52A3D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4087ECA-0F86-4A42-9163-99EBCF52A3D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4087ECA-0F86-4A42-9163-99EBCF52A3D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4087ECA-0F86-4A42-9163-99EBCF52A3D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED4DCFDA-0EF5-43C1-8128-E2826E54B9D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED4DCFDA-0EF5-43C1-8128-E2826E54B9D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED4DCFDA-0EF5-43C1-8128-E2826E54B9D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED4DCFDA-0EF5-43C1-8128-E2826E54B9D9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
