@@ -10,7 +10,6 @@ namespace Echo_1
     class Program
     {
         public static int PORT = 1337;
-
         static void Main(string[] args)
         {
             // створюємо і запускаємо серверний потік

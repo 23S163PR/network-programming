@@ -10,7 +10,7 @@ namespace Echo_1
     {
         public static string BytesToString(byte[] buff, int size)
         {
-            Array.Resize(ref buff, size - 1); //обрізаємо буфер по розміру меседжа
+            Array.Resize(ref buff, size); //обрізаємо буфер по розміру меседжа
             string message = System.Text.Encoding.UTF8.GetString(buff);
             return message;
         }
@@ -18,7 +18,7 @@ namespace Echo_1
         public static byte[] StringToBytes(string message)
         {
             byte[] buff;
-            buff = System.Text.Encoding.ASCII.GetBytes(message);
+            buff = System.Text.Encoding.ASCII.GetBytes(message);    
             return buff;
         }
     }

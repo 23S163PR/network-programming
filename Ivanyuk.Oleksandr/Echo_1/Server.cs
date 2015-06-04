@@ -14,7 +14,9 @@ namespace Echo_1
         Socket ServerSocket;
         // порт сервера
         int Port;
-        //конструюємо сервер сокет
+        /// <summary>
+        /// конструюємо сервер сокет
+        /// </summary>
         public Server()
         {
             ServerSocket =  new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -24,7 +26,10 @@ namespace Echo_1
             ServerSocket.Bind(localEndPoint);
             ServerSocket.Listen(10);
         }
-        // функция чекає конекта клієнта і вертає екземпляр сокета асоциірованого з ним
+        /// <summary>
+        /// функция чекає конекта клієнта і вертає екземпляр сокета асоциірованого з ним
+        /// </summary>
+        /// <returns>ServerSocket.Accept()</returns>
         public Socket Accept()
         {
             return ServerSocket.Accept();
