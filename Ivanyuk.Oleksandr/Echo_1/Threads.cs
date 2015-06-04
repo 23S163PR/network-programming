@@ -10,7 +10,10 @@ namespace Echo_1
 {
     class Threads
     {
-        // потік обробки клієнта, приймає екземпляр сокета клієнта
+        /// <summary>
+        /// потік обробки клієнта, приймає екземпляр сокета клієнта
+        /// </summary>
+        /// <param name="EchoFlow"></param>
         public static void EchoTread(Object EchoFlow)
         {
             // преобразовуємо екземпляр сокета клієнта з Object в Socket
