@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -6,37 +7,41 @@ namespace WebChatClient
 {
     public class WebClient
     {
-        private const int BuferSize = 256;
-        private TcpClient _client;
-       
+        private const int BuferSize = 1024;
+        private static TcpClient _client = new TcpClient {SendBufferSize = BuferSize};
 
-        public WebClient(string host, int port)
+        public bool ConectToSerwer(IPAddress host, int port)
         {
-            _client = new TcpClient();
-            _client.ConnectAsync(IPAddress.Loopback, port);
-            
+            try
+            {
+                _client.ConnectAsync(host, port);
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+            return true;
         }
 
         public void SendMessage(string message)
         {
+            if(!_client.Connected)return;
             var stream = _client.GetStream();
-            var messageBytes = Encoding.ASCII.GetBytes(message);
+            var messageBytes = Encoding.UTF8.GetBytes(message);
             stream.WriteAsync(messageBytes, 0, messageBytes.Length);
-            stream.Flush();
-            stream.Dispose();
+            stream.FlushAsync();
         }
 
-        //public string GetMessage()
-        //{
-        //    var buffer = new byte[BuferSize];
-           
-        //    stream.ReadAsync(buffer, 0, buffer.Length - 1);
-        //    stream.Flush();
-        //    stream.Close();
-        //    return Encoding.ASCII.GetString(buffer);
-        //}
+        public string GetMessage()
+        {
+            var buffer = new byte[BuferSize];
+            var stream = _client.GetStream();
+            var bytes = stream.ReadAsync(buffer, 0, buffer.Length - 1).Result;
+            stream.FlushAsync();
+            return Encoding.UTF8.GetString(buffer, 0, bytes);
+        }
 
-        public void WebClientStop()
+        public static void WebClientStop()
         {
             _client.Close();    
         }
