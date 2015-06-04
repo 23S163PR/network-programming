@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading;
 
 namespace tsp_serwer
 {
@@ -7,7 +7,10 @@ namespace tsp_serwer
         static void Main(string[] args)
         {
             var server = new ChatServer();
-            Console.ReadLine();
+            var serverthread = new Thread(server.ServerThread);
+            serverthread.Start();
+            Thread.CurrentThread.Join();
+            //Console.ReadLine();
         }
     }
 }

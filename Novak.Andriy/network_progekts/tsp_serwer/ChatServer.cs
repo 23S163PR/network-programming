@@ -4,88 +4,82 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace tsp_serwer
 {
     class ChatServer : IDisposable
     {
-        private List<TcpClient> _clients; 
-        private Timer _timer;
-        
+        private static List<Socket> _clientSockets = new List<Socket>(); 
         private const int MaxClientCount = 2;
         private const int MaxMessageSizeInBytes = 1024;
-        private Encoding m_encoding = Encoding.ASCII;
-        private readonly TcpListener _serverListener;
+        private Socket _serverSocket;
+        private const int ServerPort = 4567; 
+        
         private byte[] bufer = new byte[MaxMessageSizeInBytes];
-        public static int ServerPort { get { return 4567; }}
+        
         
         public ChatServer()
         {
-            _serverListener = new TcpListener(IPAddress.Any, ServerPort);
-            _serverListener.Start(MaxClientCount);
-            _clients = new List<TcpClient>();
-            _timer = new Timer(GetMessageCalback,false, 0, 10000);
+            _clientSockets = new List<Socket>();
+            Init();
+
         }
 
-        private void GetMessageCalback(object e)
+        private void Init()
         {
-            GetMessage();
-            //var newClient = _serverListener.AcceptTcpClientAsync().Result;
-            //if(!_clients.Contains(newClient)) _clients.Add(newClient);
-            //var res = GetMessage();
-            //if (res != null)
-            //{
-            //    ServerSendingMessages(res);
-            //}
-        }
-
-        private string GetMessage()
-        {
-            //var newClient = _serverListener.AcceptTcpClientAsync().Result;
-            //if (!_clients.Contains(newClient)) _clients.Add(newClient);
-            var socket = _serverListener.AcceptSocketAsync().Result;
-            if (socket == null) return null;
-            var received = socket.Receive(bufer);
-            if (received > 0)
+            try
             {
-                var receivedMessage = m_encoding.GetString(bufer, 0, received);
-                Console.WriteLine(receivedMessage);
-                return receivedMessage;
+                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                var localEndPoint = new IPEndPoint(IPAddress.Any, ServerPort);
+                _serverSocket.Bind(localEndPoint);
+                _serverSocket.Listen(MaxClientCount);
             }
-            
-            socket.Close();
-            return null;
-        }
-
-        public void ServerSendingMessages(string message)
-        {
-            Parallel.ForEach(_clients, c =>
+            catch (Exception)
             {
                 
-            });
-            //var buffer = new byte[MaxMessageSizeInBytes];
-            //var socket = listener.AcceptSocket();
-            //var received = socket.Receive(buffer);
+            }
+        }
 
-            //if (received > 0)
-            //{
-            //    var receivedMessage = Encoding.ASCII.GetString(buffer, 0, received);
-            //    Console.WriteLine("CLIENT:: {0}", receivedMessage);
-            //}
+        public void ServerThread()
+        {
+            while (true)
+            {
+                var echoSocket = _serverSocket.Accept();
+                if (!_clientSockets.Contains(echoSocket)) _clientSockets.Add(echoSocket);                  
+                Console.WriteLine("Connection ");
+                Console.WriteLine("From {0} \r\n", echoSocket.RemoteEndPoint);
+                var thread = new Thread(EchoTread);
+                thread.Start(echoSocket);
+            }
+        }
 
-            //socket.Close();
-            //listener.Stop();
-
-            //Console.WriteLine("Press Enter to exit server ...");
-            //Console.ReadLine();
+        public static void EchoTread(Object EchoFlow)
+        {
+            // преобразовуємо екземпляр сокета клієнта з Object в Socket
+            var EchoSocket = (Socket)EchoFlow;
+            // виділяємо буфер для прийняття данних
+            var buff = new byte[MaxMessageSizeInBytes];
+            // шлемо клієнту месагу Echo server
+            EchoSocket.Send(Encoding.ASCII.GetBytes("Echo server\r\n"));
+            // поки юзер не закриє коннект працює цей код
+            while (EchoSocket.Connected)
+            {
+                // ждемо поки юзер шось не пошле і приймаємо прислані данні в buff
+                EchoSocket.Receive(buff);
+                // шлем їх йому назад ! )))))))
+                foreach (var client in _clientSockets)
+                {
+                    client.Send(buff);
+                }
+                // чистимо буффер від того шо отримали, ато заб"ється і буде каша
+                Array.Clear(buff, 0, buff.Length);
+            }
         }
 
         public void Dispose()
         {
-            _timer.Dispose();
-            _serverListener.Stop();
-
+           _serverSocket.Close();
+           _serverSocket.Dispose();
         }
     }
 }
