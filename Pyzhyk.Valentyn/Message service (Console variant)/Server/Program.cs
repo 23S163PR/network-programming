@@ -10,14 +10,9 @@ namespace Server
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Server");
             var Server = new Server();
-            Server.StartListenAllIPAdressInPort(2335, 100);
-
-            Console.ReadLine();
-
-
-            Console.ReadLine();
-
+            Server.StartListenAllIPAdressInPort(1337, 2);
         }
     }
 }

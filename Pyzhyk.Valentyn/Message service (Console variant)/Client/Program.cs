@@ -10,8 +10,8 @@ namespace Client
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Client");
             var client = new Client();
-
             client.SendMessagesToServer("Hello Server");
         }
     }
