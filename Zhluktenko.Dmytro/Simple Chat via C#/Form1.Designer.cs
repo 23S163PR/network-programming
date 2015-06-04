@@ -69,9 +69,11 @@
             this.TextMessageBox.Name = "TextMessageBox";
             this.TextMessageBox.Size = new System.Drawing.Size(100, 20);
             this.TextMessageBox.TabIndex = 4;
+            this.TextMessageBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextMessageBox_KeyDown);
             // 
             // SendButton
             // 
+            this.SendButton.Enabled = false;
             this.SendButton.Location = new System.Drawing.Point(156, 328);
             this.SendButton.Name = "SendButton";
             this.SendButton.Size = new System.Drawing.Size(107, 23);
@@ -88,6 +90,7 @@
             this.ChatBox.Size = new System.Drawing.Size(248, 232);
             this.ChatBox.TabIndex = 6;
             this.ChatBox.Text = "";
+            this.ChatBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ChatBox_KeyDown);
             // 
             // Form1
             // 
@@ -100,6 +103,9 @@
             this.Controls.Add(this.ConnectButton);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.LoginBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Form1";
             this.Text = "Form1";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
