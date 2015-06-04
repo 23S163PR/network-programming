@@ -80,13 +80,25 @@ namespace Chat
                     {
                         var message = Encoding.ASCII.GetString(buffer, 0, received);
 
-                        tbAllMessages.Dispatcher.Invoke(() => tbAllMessages.Text += message + "\n");
+                        tbAllMessages.Dispatcher.Invoke(() => { 
+                                                tbAllMessages.Text += message + "\n"; 
+                                                tbMessage.Text = "";
+                                                tbMessage.Focus();
+                        });
                     }
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show(e.Message);
                 }
+            }
+        }
+
+        private void Grid_KeyUp_1(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && !String.IsNullOrEmpty(tbMessage.Text))
+            {
+                SendMessage();
             }
         }
         
