@@ -9,7 +9,7 @@ namespace tsp_serwer
 {
     class ChatServer : IDisposable
     {
-        private static List<Socket> _clientSockets = new List<Socket>(); 
+        private static readonly List<Socket> _clientSockets = new List<Socket>(); 
         private const int MaxClientCount = 2;
         private const int MaxMessageSizeInBytes = 1024;
         private Socket _serverSocket;
@@ -20,9 +20,7 @@ namespace tsp_serwer
         
         public ChatServer()
         {
-            _clientSockets = new List<Socket>();
             Init();
-
         }
 
         private void Init()
@@ -48,29 +46,39 @@ namespace tsp_serwer
                 if (!_clientSockets.Contains(echoSocket)) _clientSockets.Add(echoSocket);                  
                 Console.WriteLine("Connection ");
                 Console.WriteLine("From {0} \r\n", echoSocket.RemoteEndPoint);
-                var thread = new Thread(EchoTread);
+               
+                var thread =  new Thread(EchoTread);
                 thread.Start(echoSocket);
             }
         }
 
-        public static void EchoTread(Object EchoFlow)
+        private static void EchoTread(Object EchoFlow)
         {
             // преобразовуємо екземпляр сокета клієнта з Object в Socket
             var EchoSocket = (Socket)EchoFlow;
             // виділяємо буфер для прийняття данних
             var buff = new byte[MaxMessageSizeInBytes];
-            // шлемо клієнту месагу Echo server
-            EchoSocket.Send(Encoding.ASCII.GetBytes("Echo server\r\n"));
-            // поки юзер не закриє коннект працює цей код
             while (EchoSocket.Connected)
             {
                 // ждемо поки юзер шось не пошле і приймаємо прислані данні в buff
-                EchoSocket.Receive(buff);
+                var received = EchoSocket.Receive(buff);
                 // шлем їх йому назад ! )))))))
-                foreach (var client in _clientSockets)
+                if (received > 0)
                 {
-                    client.Send(buff);
+                    foreach (var client in _clientSockets)
+                    {
+                        client.Send(buff);
+                    } 
+                    var receivedMessage = Encoding.UTF8.GetString(buff, 0, received);
+                    Console.WriteLine("CLIENT:: {0}", receivedMessage);
+                    if (receivedMessage == "404")
+                    {
+                        _clientSockets.Remove(EchoSocket);
+                        EchoSocket.Disconnect(true); 
+                    }                  
                 }
+                
+                //}
                 // чистимо буффер від того шо отримали, ато заб"ється і буде каша
                 Array.Clear(buff, 0, buff.Length);
             }
