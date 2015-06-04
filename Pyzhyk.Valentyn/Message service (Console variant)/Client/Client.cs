@@ -11,37 +11,57 @@ namespace Client
 {
     class Client
     {
-        private int Port;
+        private int PortRead;
+        private int PortWrite;
         private IPAddress IpAddress;
-        private TcpClient client;
+        private const int MaxMessageSizeInBytes = 1024;
+
+        private Socket SocketRead;
+        private Socket SocketWrite;
 
         public Client()
         {
-            Port = 1337;
+            PortRead = 1337;
+            PortWrite = 1338;
             //IpAddress = IPAddress.Parse("192.168.1.99");
             IpAddress = IPAddress.Loopback;
-            client = new TcpClient();
+            SocketRead = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            SocketWrite = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            ConnectSockets();
+        }
+        /// <summary>
+        /// connect sockets
+        /// </summary>
+        private void ConnectSockets()
+        {
+            SocketRead.Connect(IpAddress, PortRead);
+            SocketWrite.Connect(IpAddress, PortWrite);
         }
 
-        public void SendMessagesToServer(string message)
+        public void SendMessageToServer(string message)
         {
-            client.Connect(IpAddress, Port);
-            var stream = client.GetStream();
-            var a = client.Client;
-            while (true)
+            byte[] messageBytes= new byte[message.Length];
+            messageBytes = Encoding.ASCII.GetBytes(message);
+            SocketWrite.Send(messageBytes);
+        }
+
+        public void GetMessages()
+        {
+            Thread thread = new Thread(() =>
             {
-                byte[] bytesread = new byte[1024];
-                var messageBytes = Encoding.ASCII.GetBytes(Console.ReadLine());
-                //Console.WriteLine("Entered message: {0}", message);
-                stream.Write(messageBytes, 0, messageBytes.Length);
-                stream.Flush();
+                while (true)
+                {
+                    byte[] messageBytes = new byte[MaxMessageSizeInBytes];
+                    SocketRead.Receive(messageBytes);
+                    ResizeBuffertoRealSize(ref messageBytes);
+                    var messageString = Encoding.ASCII.GetString(messageBytes);
 
-                stream.Read(bytesread, 0, bytesread.Length);
-                ResizeBuffertoRealSize(ref bytesread);
+                    Console.WriteLine(messageString);
+                }
+            });
+            thread.IsBackground = false;
+            thread.Start();
 
-                Console.WriteLine(Encoding.ASCII.GetString(bytesread, 0, bytesread.Length));
-            }
-            client.Close();
         }
 
 

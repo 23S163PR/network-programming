@@ -9,41 +9,78 @@ using System.Threading.Tasks;
 
 namespace Server
 {
+
+    public class Client
+    {
+        public Socket SocketRead { get; private set; }
+        public Socket SocketWrite { get; private set; }
+
+        public Client(Socket socketRead, Socket socketWrite)
+        {
+            SocketRead = socketRead;
+            SocketWrite = socketWrite;
+        }
+
+    }
     class Server
     {
-        private int Port;
+        private int PortRead;
+        private int PortWrite;
         private int MaxClientCount;
         private const int MaxMessageSizeInBytes = 1024;
-        private List<Socket> clients;
+        private List<Client> clients;
+        private TcpListener ListenerReadPort;
+        private TcpListener ListenerWritePort;
 
-        public Server ()
+        public Server()
         {
-            clients = new List<Socket>();
+            clients = new List<Client>();
+            PortRead = 1338;
+            PortWrite = 1337;
+            StartListeners();
         }
-        
-        public void StartListenAllIPAdressInPort(int port, int maxClientCount)
+        /// <summary>
+        /// Initialize and start listeners in the port reading(1338) and writing(1337)
+        /// </summary>
+        private void StartListeners()
         {
-            Port = port;
-            MaxClientCount = maxClientCount;
+            ListenerReadPort = new TcpListener(IPAddress.Any, PortRead);
+            ListenerWritePort = new TcpListener(IPAddress.Any, PortWrite);
+            ListenerWritePort.Start();
+            ListenerReadPort.Start();
+        }
 
-            var listener = new TcpListener(IPAddress.Any, Port);
-            listener.Start(MaxClientCount);
+        public void ReroutingMessages()
+        {
+            var socketWrite = ListenerWritePort.AcceptSocket();
+            var socketRead = ListenerReadPort.AcceptSocket();
 
-            var buffer = new byte[MaxMessageSizeInBytes];
-            var socket = listener.AcceptSocket();
-            clients.Add(socket);
-            while (true)
-            {   
-                var received = socket.Receive(buffer);
-                socket.Send(buffer);
-                
-                if (received > 0)
+            clients.Add(new Client(socketRead, socketWrite));
+
+
+            Thread thread = new Thread(() =>
+            {
+                while (true)
                 {
-                    var receivedMessage = Encoding.ASCII.GetString(buffer, 0, received);
-                    Console.WriteLine("CLIENT:: {0}", receivedMessage);
+                    byte[] messageBytes = new byte[MaxMessageSizeInBytes];
+                    var recieved = socketRead.Receive(messageBytes);
+
+                    foreach (var client in clients)
+                    {
+                        if (client.SocketRead != socketRead)
+                        {
+                            client.SocketWrite.Send(messageBytes);
+                        }
+                    }
+                    //socketWrite.Send(messageBytes);
+
+                    var messageString = Encoding.ASCII.GetString(messageBytes, 0, recieved);
+                    Console.WriteLine(messageString);
                 }
-                Array.Clear(buffer, 0, buffer.Length);
-            }
+            });
+            thread.IsBackground = false;
+            thread.Start();
+            ReroutingMessages();
         }
     }
 }

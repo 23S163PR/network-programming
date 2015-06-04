@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client
@@ -12,7 +13,16 @@ namespace Client
         {
             Console.WriteLine("Client");
             var client = new Client();
-            client.SendMessagesToServer("Hello Server");
+            Thread thread = new Thread(() =>
+            {
+                while (true)
+                {
+                    client.SendMessageToServer(Console.ReadLine());
+                }
+            });
+            thread.IsBackground = false;
+            thread.Start();
+            client.GetMessages();
         }
     }
 }

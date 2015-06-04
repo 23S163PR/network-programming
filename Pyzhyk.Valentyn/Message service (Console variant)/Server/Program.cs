@@ -12,7 +12,7 @@ namespace Server
         {
             Console.WriteLine("Server");
             var Server = new Server();
-            Server.StartListenAllIPAdressInPort(1337, 2);
+            Server.ReroutingMessages();
         }
     }
 }
