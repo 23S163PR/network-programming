@@ -8,13 +8,16 @@ using System.Windows.Controls.Primitives;
 namespace ChatClient
 {
 	/// <summary>
-	/// Interaction logic for MainWindow.xaml
+	///     Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		TcpClient clientSocket = new TcpClient();
-		NetworkStream serverStream = default(NetworkStream);
-		string readData = null;
+		private const string Ip = "127.0.0.1";
+		private const int Port = 8888;
+		private const int MaxMessageSizeInBytes = 10024;
+		private readonly TcpClient clientSocket = new TcpClient();
+		private string readData;
+		private NetworkStream serverStream = default(NetworkStream);
 
 		public MainWindow()
 		{
@@ -23,7 +26,7 @@ namespace ChatClient
 
 		private void SendMessageButton_OnClick(object sender, EventArgs e)
 		{
-			byte[] outStream = Encoding.ASCII.GetBytes(MessageTextBox.Text + "$");
+			var outStream = Encoding.ASCII.GetBytes(MessageTextBox.Text + "$");
 			serverStream.Write(outStream, 0, outStream.Length);
 			serverStream.Flush();
 		}
@@ -32,14 +35,14 @@ namespace ChatClient
 		{
 			readData = "Conected to Chat Server ...";
 			ShowMessage();
-			clientSocket.Connect("127.0.0.1", 8888);
+			clientSocket.Connect(Ip, Port);
 			serverStream = clientSocket.GetStream();
 
-			byte[] outStream = Encoding.ASCII.GetBytes(NameTextBox.Text + "$");
+			var outStream = Encoding.ASCII.GetBytes(NameTextBox.Text + "$");
 			serverStream.Write(outStream, 0, outStream.Length);
 			serverStream.Flush();
 
-			Thread ctThread = new Thread(GetMessage);
+			var ctThread = new Thread(GetMessage);
 			ctThread.Start();
 		}
 
@@ -48,11 +51,11 @@ namespace ChatClient
 			while (true)
 			{
 				serverStream = clientSocket.GetStream();
-				int buffSize = 0;
-				byte[] inStream = new byte[10025];
+				var buffSize = 0;
+				var inStream = new byte[MaxMessageSizeInBytes];
 				buffSize = clientSocket.ReceiveBufferSize;
 				serverStream.Read(inStream, 0, buffSize);
-				string returndata = Encoding.ASCII.GetString(inStream);
+				var returndata = Encoding.ASCII.GetString(inStream);
 				readData = "" + returndata;
 				ShowMessage();
 			}

@@ -8,6 +8,7 @@ namespace ChatServer
 {
 	public class Client
 	{
+		private const int MaxMessageSizeInBytes = 10024;
 		private Hashtable clientsList;
 		private TcpClient clientSocket;
 		private string clNo;
@@ -24,7 +25,7 @@ namespace ChatServer
 		private void doChat()
 		{
 			var requestCount = 0;
-			var bytesFrom = new byte[10025];
+			var bytesFrom = new byte[MaxMessageSizeInBytes];
 			string dataFromClient = null;
 			byte[] sendBytes = null;
 			string serverResponse = null;
@@ -39,7 +40,8 @@ namespace ChatServer
 					var networkStream = clientSocket.GetStream();
 					networkStream.Read(bytesFrom, 0, clientSocket.ReceiveBufferSize);
 					dataFromClient = Encoding.ASCII.GetString(bytesFrom);
-					dataFromClient = dataFromClient.Substring(0, dataFromClient.IndexOf("$"));
+					dataFromClient = dataFromClient.Substring(0, dataFromClient.IndexOf("$", StringComparison.Ordinal));
+
 					Console.WriteLine("From client - " + clNo + " : " + dataFromClient);
 					rCount = Convert.ToString(requestCount);
 

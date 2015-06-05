@@ -17,7 +17,7 @@
 			<TextBox Name="NameTextBox" Width="200" Height="30" VerticalContentAlignment="Center"/>
 			<Button Name="ConnectButton" Width="100" Height="30" Content="Connect To Server" Click="ConnectButton_OnClick"/>
 		</WrapPanel>
-		
+
 		<TextBox Grid.Row="1" Name="ChatTextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
 
 		<WrapPanel Grid.Row="2" Height="34" HorizontalAlignment="Left">
