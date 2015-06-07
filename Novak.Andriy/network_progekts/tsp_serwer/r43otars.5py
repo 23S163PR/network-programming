@@ -4,19 +4,16 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Web.Script.Serialization;
-using ServerJsonObject;
 
 namespace tsp_serwer
 {
     class ChatServer
     {
         private TcpListener _server;
-        private List<Socket> _clients;
-        private volatile int MaxClientCount = 2;
+        private List<TcpClient> _clients;
+        private const int MaxClientCount = 2;
         private const int ServerPort = 4567;
         private bool _stopNetwork;
-        private const int CloseClientCode = 404;
       
         public ChatServer()
         {
@@ -27,7 +24,7 @@ namespace tsp_serwer
         {
             try
             {
-                _clients = new List<Socket>();
+                _clients = new List<TcpClient>();
                 _stopNetwork = false;
                 _server = new TcpListener(IPAddress.Any, ServerPort);
                 _server.Start();
@@ -39,72 +36,75 @@ namespace tsp_serwer
 
         public void AcceptClients()
         {
-            while (!_stopNetwork)
+            while (true)
             {
                 try
                 {
-                    
-                    var client = _server.AcceptTcpClient();
-                    if (_clients.Count > MaxClientCount)
-                    {
-                        var socket = client.Client;
-                        ClientStatus(ref socket, 404/*Disconect client code*/);
-                        continue;
-                    }
-                    _clients.Add(client.Client);
+                    var client =_server.AcceptTcpClient();
+                    _clients.Add(client); 
                     var readThread = new Thread(ReceiveRun);
-                    readThread.Start(client.Client);
+                    readThread.Start(client);
                 }
                 catch (Exception) { }
+         
+                if (_clients.Count <= MaxClientCount || _stopNetwork)
+                {
+                    break;
+                }
             }
         }
 
         //read add broadcast message
         void ReceiveRun(object client)
-        {   
-            var message = new StringBuilder();
-            var socket = (Socket)client;
-            var defaultCode = 1;
-            while (socket.Connected)
-            {
-                if (socket.Available > 0)
-                {
-                    var buff = new byte[socket.Available];
-                   
-                    socket.Receive(buff);
-                  
-                    message.Append(Encoding.ASCII.GetString(buff));
-                    defaultCode = message.ToString().JsonToObject().Code;   
-                }
-                ClientStatus(ref socket, defaultCode);
-                if (message.Length > 0 && defaultCode != CloseClientCode)
-                {
-                    SendToClients(message.ToString());
-                    message.Clear();
-                }
-               Thread.Sleep(100);
-            }
-        }
-       
-        private void ClientStatus(ref Socket nClient, int code)
         {
-            if (code == 404)
+            var nClient = ((TcpClient) client);
+            var message = new StringBuilder();
+            while (nClient.Client.Connected)
             {
-                _clients.Remove(nClient);
-                nClient.Disconnect(false);
+                var stream = nClient.GetStream();
+                while (stream.DataAvailable)
+                {
+                    var buff = new byte[nClient.Available];
+                    stream.ReadAsync(buff, 0, buff.Length);
+                    message.Append(Encoding.ASCII.GetString(buff));
+                    ClientStatus(nClient, message);  
+                    Array.Clear(buff, 0, buff.Length);
+                    stream.FlushAsync();
+                }
+                if (message.Length <= 0) continue;
+                SendToClients(message.ToString());
+                message.Clear();
             }
         }
 
+        private void ClientStatus(TcpClient nClient, StringBuilder message)
+        {
+            if (message.ToString() == "404")
+            {
+                _clients.Remove(nClient);
+                nClient.Client.Disconnect(false);
+            }
+        }
+
+        //async send message
         void SendToClients(string text)
         {
             foreach (var client in _clients)
             {
-                if (!client.Connected) continue;
+                if (client == null) continue;
+                var stream = client.GetStream();
                 var buffer = Encoding.ASCII.GetBytes(text);
-                client.Send(buffer);
+                stream.BeginWrite(buffer, 0, buffer.Length, AsyncSendCompleted, stream);
             }
         }
- 
+
+        // async send message calback
+        private void AsyncSendCompleted(IAsyncResult ar)
+        {
+            var nets = (NetworkStream)ar.AsyncState;
+            nets.EndWrite(ar);
+        }
+
         public void StopServer()
         {
             if (_server == null)return;

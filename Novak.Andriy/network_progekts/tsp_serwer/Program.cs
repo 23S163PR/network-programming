@@ -7,7 +7,8 @@ namespace tsp_serwer
         static void Main(string[] args)
         {
             var server = new ChatServer();
-            server.ServerThread();
+            server.AcceptClients();
+            server.StopServer();
         }
     }
 }
