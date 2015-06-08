@@ -73,15 +73,16 @@ namespace tsp_serwer
                     socket.Receive(buff);
                   
                     message.Append(Encoding.ASCII.GetString(buff));
-                    defaultCode = message.ToString().JsonToObject().Code;  //get message code for cheking on disconect 
+                    var chatObj = message.ToString().JsonToObject();
+
+                    defaultCode = chatObj != null ? chatObj.Code : ChatCodes.Conected; //if not valid json                
                 }
                 ClientStatus(ref socket, defaultCode);//check if client disconect
 
-                if (message.Length > 0 && defaultCode != ChatCodes.CloseConection)
-                {
-                    SendToClients(message.ToString());
-                    message.Clear();
-                }
+                if (message.Length <= 0 || defaultCode == ChatCodes.CloseConection) continue;
+
+                SendToClients(message.ToString());
+                message.Clear();
             }
         }
 
