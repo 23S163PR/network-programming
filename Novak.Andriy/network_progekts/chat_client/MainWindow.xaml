@@ -1,13 +1,49 @@
 ﻿<Window x:Class="chat_client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="450" Width="525">
+        Title="MainWindow" Height="450" Width="525" SizeToContent="Height">
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="5,10"/>
+        </Style>
+       
+        <Style TargetType="TextBox" x:Key="tbContent">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        
+        <Style TargetType="TextBox">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,10"/>
+            <Setter Property="Width" Value="150"/>
+        </Style>
+
+
+    </Window.Resources>
     <StackPanel Background="DimGray">
-        <Button Content="Conect" Width="70" HorizontalAlignment="Right" Margin="10,10" Click="ConectClick"/>
-        <TextBox HorizontalAlignment="Stretch" Height="200"  Margin="5" Name="tbBox" 
-                 AcceptsReturn="True" TextWrapping="WrapWithOverflow" TextOptions.TextFormattingMode="Display"/>
-        <TextBox HorizontalAlignment="Stretch" Margin="5" Height="100" Name="tbText"/>
-        <Button Content="Send" Width="70" HorizontalAlignment="Right" Margin="10,10" Name="bSend" Click="BSend_OnClick"/>
+
+        <DockPanel>
+            <Label Content="IP:"/>
+            <TextBox Name="tbIp"/>
+            <Label Content="Port:"/>
+            <TextBox Name="tbPort"></TextBox>
+            <Button Content="Conect" Width="70" HorizontalAlignment="Right" Margin="10,10" Click="ConectClick"/>
+        </DockPanel>
+        <DockPanel>
+            <Label Content="Login* :" Foreground="DarkRed"/>
+            <TextBox Name="tbLogin" HorizontalAlignment="Left"/>
+        </DockPanel>
+        <TextBox HorizontalAlignment="Stretch" Height="200" Name="tbBox" Style="{StaticResource tbContent}"/>
+        <TextBox HorizontalAlignment="Stretch" Height="100" Name="tbText" Style="{StaticResource tbContent}"/>
+
+        <Button Content="Send" Width="70" HorizontalAlignment="Right" Margin="10,10" Name="bSend" Click="BSend_OnClick" />
+
+
 
     </StackPanel>
 </Window>

@@ -1,76 +1,83 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using ServerJsonObject;
-
+using ChatJsonObject;
 
 namespace chat_client
 {
     public class ChatClient 
     {
         private TcpClient _tcpСlient;
-        private NetworkStream _networkStream;
-        private bool _stopNetwork;
         private readonly StringBuilder _message;
-        private string _username;
-        public bool DataAviable { get { return _networkStream.DataAvailable; } }
+        public string Username { get; set; }
+        public bool ServerAviable { get; private set; }
 
-        public ChatClient(string username)
+        public bool StopNetwork { get; private set; }
+
+        public ChatClient()
         {
-            _username = username;
             _message = new StringBuilder();
         }
 
+        
         public void Connect(IPAddress adress, int port)
         {
-            try
+            if (_tcpСlient != null)
             {
-                _tcpСlient = new TcpClient();
-                _tcpСlient.Connect(adress, port);
-                _networkStream = _tcpСlient.GetStream();
+                 SendMessage("404", ChatCodes.CloseConection);
             }
-            catch
-            {
-            }
+            _tcpСlient = new TcpClient();
+            _tcpСlient.Connect(adress, port); // can return SocketException
+            StopNetwork = false;
+            ServerAviable = true;
         }
 
         public void CloseClient()
         {
-            if (_networkStream != null) _networkStream.Close();
             if (_tcpСlient != null) _tcpСlient.Close();
-            _stopNetwork = true;
+
+            StopNetwork = true;
         }
 
-        public void SendMessage(string msg, int code = 1)
+        public void SendMessage(string msg, ChatCodes code = ChatCodes.Conected)
         {
-           if(_networkStream == null)return;
+            if (StopNetwork) return;
 
-           var buffer = Encoding.ASCII.GetBytes(new ChatObject(_username, "", code, msg).ObjectToJson());
-            _networkStream.WriteAsync(buffer, 0, buffer.Length);  
+            var buffer = Encoding.ASCII.GetBytes(new ChatObject(Username, "", code, msg).ObjectToJson());
+            _tcpСlient.Client.Send(buffer);
         }
 
-        public string ReceiveRun()
+        public ChatObject ReceiveRun()
         {
-            _message.Clear();
-            if (!_tcpСlient.Connected || _stopNetwork) return null;
+            _message.Clear(); 
+
+            if (StopNetwork) return null;
 
             try
             {
-                while (_tcpСlient.Available > 0)
-                {
-                    var buffer = new byte[_tcpСlient.Available]; // create buffer for data
-                    _networkStream.ReadAsync(buffer, 0, buffer.Length);
-                    _networkStream.FlushAsync();
-                    _message.Append(Encoding.ASCII.GetString(buffer));
-                }
-                return _message.Length <= 0 ? null : _message.ToString();
-            }
-            catch
-            {
+                var buffer = new byte[_tcpСlient.Client.Available]; // create buffer for data
+                _tcpСlient.Client.Receive(buffer);
+                _message.Append(Encoding.ASCII.GetString(buffer));
+                var json = _message.ToString().JsonToObject();
+               
+                if (json != null) IsServerAviable(json.Code);
                 
+                return json ?? new ChatObject("Anonimus","", ChatCodes.Conected, _message.ToString());
+            }
+            catch (SocketException e)
+            {
+                CloseClient();
             }
             return null;
-        }       
+        }
+
+        private void IsServerAviable(ChatCodes code)
+        {
+            if (code == ChatCodes.StopServer)
+            {
+                CloseClient();
+                ServerAviable = false;
+            }
+        }
     }
 }
