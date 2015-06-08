@@ -23,8 +23,8 @@ namespace Chat
     /// </summary>
     public partial class MainWindow : Window
     {
-        const int Port = 4510;
-        //const String Ip = "192.168.56.1";
+        const int Port = 3333;
+        byte[] Ip = new byte[]{192, 168, 56, 1};
 
 
         public MainWindow()
@@ -47,8 +47,12 @@ namespace Chat
         public void SendMessage()
         {
             var client = new TcpClient();
-            // client.Connect(IPAddress.Parse(Ip), Port);
-            client.Connect(IPAddress.Loopback, Port);
+            client.Connect(new IPAddress(Ip), Port);
+
+            IPHostEntry ipHost = Dns.GetHostEntry("");
+            IPAddress ipAddr = ipHost.AddressList[0];
+
+            //client.Connect(IPAddress.Loopback, Port);
 
             var stream = client.GetStream();
             var messageInBytes = Encoding.ASCII.GetBytes(tbMessage.Text);
@@ -66,7 +70,9 @@ namespace Chat
 
             var buffer = new byte[MaxMessageSizeInBytes];
            // var listener = new TcpListener(IPAddress.Parse(Ip), Port);
-            var listener = new TcpListener(IPAddress.Any, Port);
+
+            //var listener = new TcpListener(IPAddress.Any, Port);
+            var listener = new TcpListener(new IPAddress(Ip), 2222);
             listener.Start();
             Socket socket;
 
