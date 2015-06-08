@@ -2,73 +2,66 @@
 using System.Collections;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
+using Lib;
 
 namespace ChatServer
 {
 	internal class Program
 	{
-		private const int Port = 8888;
+		private const int ServerPort = 8888;
 		private const int MaxMessageSizeInBytes = 10024;
-		public static Hashtable clientsList = new Hashtable();
+		public static Hashtable ClientsList = new Hashtable();
 
 		private static void Main(string[] args)
 		{ 
-			var serverSocket = new TcpListener(IPAddress.Any, Port);
-			var clientSocket = default(TcpClient);
-			var counter = 0;
+			var serverSocket = new TcpListener(IPAddress.Any, ServerPort);
+			// var clientSocket = default(TcpClient);
 
 			serverSocket.Start();
-			Console.WriteLine("Chat Server Started ....");
-			counter = 0;
-			while ((true))
-			{
-				counter += 1;
-				clientSocket = serverSocket.AcceptTcpClient();
+			Console.WriteLine("Chat Server Started....");
 
-				var bytesFrom = new byte[MaxMessageSizeInBytes];
-				string dataFromClient = null;
+			while (true)
+			{
+				var clientSocket = serverSocket.AcceptTcpClient();
+
+				var buffer = new byte[MaxMessageSizeInBytes];
 
 				var networkStream = clientSocket.GetStream();
-				networkStream.Read(bytesFrom, 0, clientSocket.ReceiveBufferSize);
-				dataFromClient = Encoding.ASCII.GetString(bytesFrom);
-				dataFromClient = dataFromClient.Substring(0, dataFromClient.IndexOf("$", StringComparison.Ordinal));
+				networkStream.Read(buffer, 0, clientSocket.ReceiveBufferSize);
 
-				clientsList.Add(dataFromClient, clientSocket);
+				var message = new Message().Deserialize(buffer);
 
-				Broadcast(dataFromClient + " Joined ", dataFromClient, false);
+				ClientsList.Add(message, clientSocket);
 
-				Console.WriteLine(dataFromClient + " Joined chat room ");
+				Broadcast(message, true /* IsNewClient */);
+
+				Console.WriteLine("{0} - Joined Chat", message.Name);
+
 				var client = new Client();
-				client.startClient(clientSocket, dataFromClient, clientsList);
+				client.StartClient(clientSocket);
 			}
 
-			clientSocket.Close();
-			serverSocket.Stop();
-			Console.WriteLine("exit");
-			Console.ReadLine();
+			// -- Unreachable code, can be commented out -- //
+			//clientSocket.Close();
+			//serverSocket.Stop();
+			//Console.WriteLine("exit");
+			//Console.ReadLine();
 		}
 
-		public static void Broadcast(string msg, string uName, bool flag)
+		public static void Broadcast(Message message, bool flag)
 		{
-			foreach (DictionaryEntry Item in clientsList)
+			foreach (DictionaryEntry item in ClientsList)
 			{
-				// TcpClient broadcastSocket;
-				var broadcastSocket = (TcpClient) Item.Value;
+				var broadcastSocket = (TcpClient) item.Value;
 				var broadcastStream = broadcastSocket.GetStream();
-				byte[] broadcastBytes = null;
 
 				if (flag)
-				{
-					broadcastBytes = Encoding.ASCII.GetBytes(uName + " says : " + msg);
-				}
+					message.IsNewClient = true;
 				else
-				{
-					broadcastBytes = Encoding.ASCII.GetBytes(msg);
-				}
+					message.IsNewClient = false;
 
-				broadcastStream.Write(broadcastBytes, 0, broadcastBytes.Length);
+				// TODO: 
+				broadcastStream.Write(message.Serialize(), 0, message.Serialize().Length);
 				broadcastStream.Flush();
 			}
 		}

@@ -1,51 +1,38 @@
 ﻿using System;
-using System.Collections;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
+using Lib;
 
 namespace ChatServer
 {
 	public class Client
 	{
 		private const int MaxMessageSizeInBytes = 10024;
-		private Hashtable clientsList;
-		private TcpClient clientSocket;
-		private string clNo;
+		private TcpClient _clientSocket;
 
-		public void startClient(TcpClient inClientSocket, string clineNo, Hashtable cList)
+		public void StartClient(TcpClient inputClientSocket)
 		{
-			clientSocket = inClientSocket;
-			clNo = clineNo;
-			clientsList = cList;
-			var ctThread = new Thread(doChat);
-			ctThread.Start();
+			_clientSocket = inputClientSocket;
+			var chatThread = new Thread(DoChat);
+			chatThread.Start();
 		}
 
-		private void doChat()
+		private void DoChat()
 		{
-			var requestCount = 0;
-			var bytesFrom = new byte[MaxMessageSizeInBytes];
-			string dataFromClient = null;
-			byte[] sendBytes = null;
-			string serverResponse = null;
-			string rCount = null;
-			requestCount = 0;
+			var buffer = new byte[MaxMessageSizeInBytes];
 
-			while ((true))
+			while (true)
 			{
 				try
 				{
-					requestCount = requestCount + 1;
-					var networkStream = clientSocket.GetStream();
-					networkStream.Read(bytesFrom, 0, clientSocket.ReceiveBufferSize);
-					dataFromClient = Encoding.ASCII.GetString(bytesFrom);
-					dataFromClient = dataFromClient.Substring(0, dataFromClient.IndexOf("$", StringComparison.Ordinal));
+					var networkStream = _clientSocket.GetStream();
+					networkStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
-					Console.WriteLine("From client - " + clNo + " : " + dataFromClient);
-					rCount = Convert.ToString(requestCount);
+					var message = new Message().Deserialize(buffer);
 
-					Program.Broadcast(dataFromClient, clNo, true);
+					Console.WriteLine("From client - {0}: {1}", message.Name, message.Text);
+
+					Program.Broadcast(message, false /* IsNewClient */);
 				}
 				catch (Exception ex)
 				{
