@@ -1,6 +1,8 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.Web.Script.Serialization;
-namespace ServerJsonObject
+
+namespace ChatJsonObject
 {
    [DataContract]
     public class ChatObject
@@ -10,7 +12,7 @@ namespace ServerJsonObject
         [DataMember]
         public string Avatar { get; set; }
         [DataMember]
-        public int Code { get; set; }
+        public ChatCodes Code { get; set; }
         [DataMember]
         public string Message { get; set; }
 
@@ -19,13 +21,21 @@ namespace ServerJsonObject
            
        }
 
-        public ChatObject(string login, string avatar, int code, string message)
+       public ChatObject(string login, string avatar, ChatCodes code, string message)
         {
             Login = login;
             Avatar = Avatar;
             Code = code;
             Message = message;
         }
+    }
+
+    public enum ChatCodes
+    {
+        Conected = 1
+        ,CloseConection = 404 
+        ,StopServer = 405
+        
     }
 
     public static class JsonSerializer
@@ -40,7 +50,14 @@ namespace ServerJsonObject
 
         public static ChatObject JsonToObject(this string json)
         {
-            return _deserializer.Deserialize<ChatObject>(json);
+            try
+            {
+                return _deserializer.Deserialize<ChatObject>(json);
+            }
+            catch (ArgumentNullException e)
+            {
+                return null;
+            } 
         }
     }
 }
