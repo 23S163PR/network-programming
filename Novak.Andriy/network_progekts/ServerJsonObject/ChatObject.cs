@@ -57,7 +57,11 @@ namespace ChatJsonObject
             catch (ArgumentNullException e)
             {
                 return null;
-            } 
+            }
+            catch (ArgumentException e)
+            {
+                return null;
+            }
         }
     }
 }
