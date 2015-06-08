@@ -23,22 +23,15 @@ namespace WindowsApplication2
         {
             while (true) // till window isnt closed
             {
-                obj.ServerStream = obj.ClientSocket.GetStream();
-                int buffSize = 0;
-                byte[] inStream = new byte[obj.BufferSizeBytes];
-                buffSize = obj.ClientSocket.ReceiveBufferSize;
                 try
                 {
-                    obj.ServerStream.Read(inStream, 0, buffSize); // read inStream from [0] to [buffSize]
+                    this.obj.GetMessage();
                 }
-                catch (IOException e)
+                catch (IOException ex)
                 {
-                    MessageBox.Show(e.Message);
-                    Application.Exit();
-                    return;
+                   
+                    return; // finish application
                 }
-                string returndata = System.Text.Encoding.ASCII.GetString(inStream);
-                obj.ReadData = "" + returndata;
                 PrintMessage(); // put message to chatbox 
             }
 
@@ -49,7 +42,8 @@ namespace WindowsApplication2
             if (this.InvokeRequired)
             {
                 this.Invoke(new MethodInvoker(PrintMessage)); // Gets a value indicating whether the caller must call an invoke method 
-                                                      //  when making method calls to the control                                     //   because the caller is on a different thread than the one the control was created on.
+                                                      //  when making method calls to the control                                  
+                                                      //   because the caller is on a different thread than the one the control was created on.
             }
             else
             {
@@ -77,15 +71,18 @@ namespace WindowsApplication2
             try
             {
                 obj.ConnectToServer(this.LoginBox.Text);
-                this.Text = this.obj.ServerAddress + " :: " + this.LoginBox.Text;
-                Thread ctThread = new Thread(GetMessage); // login and start chat
-                ctThread.Start(); 
+                
             }
             catch (SocketException)
             {
                 MessageBox.Show("Server is not up!");
                 this.Close();
-            }      
+            }
+
+            this.Text = this.obj.ServerAddress + " :: " + this.LoginBox.Text;
+            Thread ctThread = new Thread(GetMessage); // login and start chat
+            ctThread.Start(); 
+
             this.ConnectButton.Enabled = false;
             this.LoginBox.Enabled = false;
             this.SendButton.Enabled = true;
@@ -99,7 +96,6 @@ namespace WindowsApplication2
         {
             if (e.KeyCode == Keys.Home)
             {
-                //MessageBox.Show("", "");
                 Form1 f = new Form1();
                 f.Show();
             }
@@ -109,17 +105,17 @@ namespace WindowsApplication2
         {
             if (e.KeyCode == Keys.Home)
             {
-                //MessageBox.Show("", "");
                 Form1 f = new Form1();
-                
                 f.Show();
             }
-            if (e.KeyCode == Keys.Enter)
+            else if (e.KeyCode == Keys.Enter)
             {
                 if (!String.IsNullOrEmpty(this.LoginBox.Text))
                 {
                     this.obj.ConnectToServer(this.LoginBox.Text);
                     this.LoginBox.Enabled = false;
+                    this.ConnectButton.Enabled = false;
+                    this.SendButton.Enabled = true;
                 }
             }
         }
@@ -128,7 +124,6 @@ namespace WindowsApplication2
         {
             if (e.KeyCode == Keys.Home)
             {
-                //MessageBox.Show("", "");
                 Form1 f = new Form1();
                 f.Show();
             }
@@ -138,7 +133,6 @@ namespace WindowsApplication2
         {
             if (e.KeyCode == Keys.Home)
             {
-                //MessageBox.Show("", "");
                 Form1 f = new Form1();
                 f.Show();
             }

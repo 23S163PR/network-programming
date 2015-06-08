@@ -25,12 +25,29 @@ namespace WindowsApplication2
             this.ServerStream = default(NetworkStream);
             this.ClientSocket = new TcpClient();
         }
+        public void GetMessage()
+        {
+            this.ServerStream = this.ClientSocket.GetStream();
+            int buffSize = 0;
+            byte[] inStream = new byte[this.BufferSizeBytes];
+            buffSize = this.ClientSocket.ReceiveBufferSize;
+            try
+            {
+                this.ServerStream.Read(inStream, 0, buffSize);
+            }
+            catch (IOException e)
+            {
+                throw new IOException();
+            }
+            String returndata = System.Text.Encoding.ASCII.GetString(inStream);
+            this.ReadData = "" + returndata;
 
+
+        }
         public void SendMessage(String msgText)
         {
                 byte[] outStream = System.Text.Encoding.ASCII.GetBytes(msgText + "$"); // read text to send from TextMessageBox
                 this.ServerStream.Write(outStream, 0, outStream.Length);  // write message from [0] to [outStream.Length]
-                
                 this.ServerStream.Flush();  // clear all buffers and causes any buffered data to be written to the underlying stream.
         }
 
