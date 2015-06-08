@@ -29,7 +29,6 @@ namespace WindowsApplication2
                 }
                 catch (IOException ex)
                 {
-                   
                     return; // finish application
                 }
                 PrintMessage(); // put message to chatbox 

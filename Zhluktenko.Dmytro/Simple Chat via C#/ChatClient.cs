@@ -12,13 +12,13 @@ namespace WindowsApplication2
 {
     public class ChatClient
     {
-        public readonly int Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]); // port for server
-        public readonly int BufferSizeBytes = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BufferSizeInputBytes"]);
+        public readonly int Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]); // app.config
+        public readonly int BufferSizeBytes = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BufferSizeInputBytes"]); // app.config
+        public readonly String ServerAddress = System.Configuration.ConfigurationSettings.AppSettings["ServerAddress"]; // app.config        
         public NetworkStream ServerStream;
         public String ReadData;
         public TcpClient ClientSocket;
         public bool Logined;
-        public readonly String ServerAddress = System.Configuration.ConfigurationSettings.AppSettings["ServerAddress"];
         
         public ChatClient()
         {
