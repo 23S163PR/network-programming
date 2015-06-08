@@ -1,14 +1,9 @@
 ﻿using System;
-
 using System.Windows.Forms;
-
 using System.Text;
-
 using System.Net.Sockets;
-
 using System.Threading;
 using System.IO;
-
 
 
 namespace WindowsApplication2
@@ -17,77 +12,56 @@ namespace WindowsApplication2
     public partial class Form1 : Form
     {
 
-        public const int BufferSizeInputBytes = 10025;
-        public const int port = 8888;
-        public bool logined = false;
-        public System.Net.Sockets.TcpClient clientSocket = new System.Net.Sockets.TcpClient();
-
-        public NetworkStream serverStream = default(NetworkStream);
-
-        public string readData = "";
-
+        public ChatClient obj = new ChatClient();
 
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void getMessage()
+        private void GetMessage()
         {
             while (true) // till window isnt closed
             {
-
-                serverStream = clientSocket.GetStream();
-
+                obj.ServerStream = obj.ClientSocket.GetStream();
                 int buffSize = 0;
-
-                byte[] inStream = new byte[BufferSizeInputBytes];
-
-                buffSize = clientSocket.ReceiveBufferSize;
+                byte[] inStream = new byte[obj.BufferSizeBytes];
+                buffSize = obj.ClientSocket.ReceiveBufferSize;
                 try
                 {
-                    serverStream.Read(inStream, 0, buffSize); // read inStream from [0] to [buffSize]
-
+                    obj.ServerStream.Read(inStream, 0, buffSize); // read inStream from [0] to [buffSize]
                 }
                 catch (IOException e)
                 {
                     MessageBox.Show(e.Message);
-                    this.Close();
+                    Application.Exit();
+                    return;
                 }
                 string returndata = System.Text.Encoding.ASCII.GetString(inStream);
-
-                readData = "" + returndata;
-
-                msg(); // put message to chatbox 
-
+                obj.ReadData = "" + returndata;
+                PrintMessage(); // put message to chatbox 
             }
 
         }
 
-        private void msg()
+        private void PrintMessage() // set message on chatbox
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new MethodInvoker(msg)); // Gets a value indicating whether the caller must call an invoke method 
-                                                    //  when making method calls to the control 
-                                                   //   because the caller is on a different thread than the one the control was created on.
+                this.Invoke(new MethodInvoker(PrintMessage)); // Gets a value indicating whether the caller must call an invoke method 
+                                                      //  when making method calls to the control                                     //   because the caller is on a different thread than the one the control was created on.
             }
             else
             {
-                ChatBox.Text += Environment.NewLine + " >> " + readData; // write data that we got from server in chatBox
+                ChatBox.Text += Environment.NewLine + " >> " + obj.ReadData; // write data that we got from server in chatBox
             }
-
         }
 
         private void SendButton_Click(object sender, EventArgs e)
         {
-            if (logined.Equals(true))
+            if (obj.Logined.Equals(true))
             {
-                byte[] outStream = System.Text.Encoding.ASCII.GetBytes(TextMessageBox.Text + "$"); // read text to send from TextMessageBox
-
-                serverStream.Write(outStream, 0, outStream.Length);  // write message from [0] to [outStream.Length]
-
-                serverStream.Flush();  // clear all buffers and causes any buffered data to be written to the underlying stream.
+                obj.SendMessage(TextMessageBox.Text);
                 this.TextMessageBox.Clear();
             }
             else MessageBox.Show("Enter login!");
@@ -100,41 +74,27 @@ namespace WindowsApplication2
                 MessageBox.Show("Empty login field!", "Unable to login!");
                 return;
             }
-            this.ConnectButton.Enabled = false;
-           
             try
             {
-                clientSocket.Connect("127.0.0.1", port); // localhost 
-                readData = "Conected to Chat Server ...";
-                msg();
-                logined = true;
-                this.SendButton.Enabled = true;
-
-
+                obj.ConnectToServer(this.LoginBox.Text);
+                this.Text = this.obj.ServerAddress + " :: " + this.LoginBox.Text;
+                Thread ctThread = new Thread(GetMessage); // login and start chat
+                ctThread.Start(); 
             }
             catch (SocketException)
             {
                 MessageBox.Show("Server is not up!");
                 this.Close();
-            }
-            serverStream = clientSocket.GetStream();
-
-
-
-            byte[] outStream = System.Text.Encoding.ASCII.GetBytes(LoginBox.Text + "$");
-
-            serverStream.Write(outStream, 0, outStream.Length); // write username from [0] to [outStream.Length]
-
-            serverStream.Flush(); // clear all buffers 
-                                    //causes any buffered data to be written to the underlying stream.
-
-            Thread ctThread = new Thread(getMessage);
-
-            ctThread.Start(); 
-
+            }      
+            this.ConnectButton.Enabled = false;
+            this.LoginBox.Enabled = false;
+            this.SendButton.Enabled = true;
+        
         }
+
          // create a new window on HOME press 
         // test tool
+
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Home)
@@ -151,7 +111,16 @@ namespace WindowsApplication2
             {
                 //MessageBox.Show("", "");
                 Form1 f = new Form1();
+                
                 f.Show();
+            }
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (!String.IsNullOrEmpty(this.LoginBox.Text))
+                {
+                    this.obj.ConnectToServer(this.LoginBox.Text);
+                    this.LoginBox.Enabled = false;
+                }
             }
         }
 
@@ -173,11 +142,15 @@ namespace WindowsApplication2
                 Form1 f = new Form1();
                 f.Show();
             }
+            else if (e.KeyCode == Keys.Enter) // send message on enter key
+            {
+                if (!String.IsNullOrEmpty(this.TextMessageBox.Text))
+                {
+                    this.obj.SendMessage(this.TextMessageBox.Text);
+                    this.TextMessageBox.Clear();
+                }
+            }
         }
-
-
-
-
 
     }
 
