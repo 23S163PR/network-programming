@@ -12,8 +12,10 @@ namespace ChatClient
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private const string Ip = "127.0.0.1";
-		private const int Port = 8888;
+		//private const string ServerIp = "127.0.0.1";
+		//private const int ServerPort = 8888;
+		private const string ServerIp = "192.168.1.99";
+		private const int ServerPort = 1337;
 		private const int MaxMessageSizeInBytes = 10024;
 		private readonly TcpClient clientSocket = new TcpClient();
 		private string readData;
@@ -35,7 +37,7 @@ namespace ChatClient
 		{
 			readData = "Conected to Chat Server ...";
 			ShowMessage();
-			clientSocket.Connect(Ip, Port);
+			clientSocket.Connect(ServerIp, ServerPort);
 			serverStream = clientSocket.GetStream();
 
 			var outStream = Encoding.ASCII.GetBytes(NameTextBox.Text + "$");
