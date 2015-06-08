@@ -4,8 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Web.Script.Serialization;
-using ServerJsonObject;
+using ChatJsonObject;
 
 namespace tsp_serwer
 {
@@ -16,7 +15,6 @@ namespace tsp_serwer
         private volatile int MaxClientCount = 2;
         private const int ServerPort = 4567;
         private bool _stopNetwork;
-        private const int CloseClientCode = 404;
       
         public ChatServer()
         {
@@ -25,16 +23,12 @@ namespace tsp_serwer
 
         private void StartServer()
         {
-            try
-            {
-                _clients = new List<Socket>();
-                _stopNetwork = false;
-                _server = new TcpListener(IPAddress.Any, ServerPort);
-                _server.Start();
-                var acceptThread = new Thread(AcceptClients);
-                acceptThread.Start();
-            }
-            catch (Exception e) { }
+            _clients = new List<Socket>();
+            _stopNetwork = false;
+            _server = new TcpListener(IPAddress.Any, ServerPort);
+            _server.Start();
+            var acceptThread = new Thread(AcceptClients);
+            acceptThread.Start();
         }
 
         public void AcceptClients()
@@ -43,19 +37,24 @@ namespace tsp_serwer
             {
                 try
                 {
-                    
                     var client = _server.AcceptTcpClient();
-                    if (_clients.Count > MaxClientCount)
+                    if (_clients.Count <= MaxClientCount)
+                    {
+                        Console.WriteLine("{0} conect",client.Client.RemoteEndPoint);
+                        _clients.Add(client.Client);
+                        var readThread = new Thread(ReceiveRun);
+                        readThread.Start(client.Client);
+                    }
+                    else
                     {
                         var socket = client.Client;
-                        ClientStatus(ref socket, 404/*Disconect client code*/);
-                        continue;
-                    }
-                    _clients.Add(client.Client);
-                    var readThread = new Thread(ReceiveRun);
-                    readThread.Start(client.Client);
+                        ClientStatus(ref socket, ChatCodes.CloseConection);
+                    } 
                 }
-                catch (Exception) { }
+                catch (SocketException e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
         }
 
@@ -64,7 +63,7 @@ namespace tsp_serwer
         {   
             var message = new StringBuilder();
             var socket = (Socket)client;
-            var defaultCode = 1;
+            var defaultCode = ChatCodes.Conected;
             while (socket.Connected)
             {
                 if (socket.Available > 0)
@@ -74,23 +73,24 @@ namespace tsp_serwer
                     socket.Receive(buff);
                   
                     message.Append(Encoding.ASCII.GetString(buff));
-                    defaultCode = message.ToString().JsonToObject().Code;   
+                    defaultCode = message.ToString().JsonToObject().Code;  //get message code for cheking on disconect 
                 }
-                ClientStatus(ref socket, defaultCode);
-                if (message.Length > 0 && defaultCode != CloseClientCode)
+                ClientStatus(ref socket, defaultCode);//check if client disconect
+
+                if (message.Length > 0 && defaultCode != ChatCodes.CloseConection)
                 {
                     SendToClients(message.ToString());
                     message.Clear();
                 }
-               Thread.Sleep(100);
             }
         }
-       
-        private void ClientStatus(ref Socket nClient, int code)
+
+        private void ClientStatus(ref Socket nClient, ChatCodes code)
         {
-            if (code == 404)
+            if (code == ChatCodes.CloseConection)
             {
                 _clients.Remove(nClient);
+                Console.WriteLine("{0} disconect",nClient.RemoteEndPoint);
                 nClient.Disconnect(false);
             }
         }
@@ -107,14 +107,14 @@ namespace tsp_serwer
  
         public void StopServer()
         {
-            if (_server == null)return;
-            _server.Stop();
-            _server = null;
-            _stopNetwork = true;
             foreach (var client in _clients)
             {
                 client.Close();
             }  
+            if (_server == null)return;
+            _server.Stop();
+            _server = null;
+            _stopNetwork = true;
         }
     }
 }

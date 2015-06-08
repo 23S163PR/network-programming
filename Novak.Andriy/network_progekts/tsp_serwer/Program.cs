@@ -1,8 +1,6 @@
-﻿using System.Threading;
-
-namespace tsp_serwer
+﻿namespace tsp_serwer
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
