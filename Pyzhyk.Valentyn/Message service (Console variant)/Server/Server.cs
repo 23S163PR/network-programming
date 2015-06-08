@@ -56,14 +56,21 @@ namespace Server
             var socketRead = ListenerReadPort.AcceptSocket();
 
             clients.Add(new Client(socketRead, socketWrite));
-
-
             Thread thread = new Thread(() =>
             {
-                while (true)
+                while (socketRead.Connected)
                 {
                     byte[] messageBytes = new byte[MaxMessageSizeInBytes];
-                    var recieved = socketRead.Receive(messageBytes);
+                    int recieved = 0;
+
+                    try
+                    {
+                        recieved = socketRead.Receive(messageBytes);
+                    }
+                    catch(SocketException e)
+                    {
+                        break;
+                    }
 
                     foreach (var client in clients)
                     {
@@ -76,7 +83,21 @@ namespace Server
 
                     var messageString = Encoding.ASCII.GetString(messageBytes, 0, recieved);
                     Console.WriteLine(messageString);
+
                 }
+                socketRead.Close();
+                // socketRead.Dispose();
+                socketWrite.Close();
+                // socketWrite.Dispose();
+                for (int i = 0; i < clients.Count; i++)
+                {
+                    if (clients[i].SocketRead.Equals(socketRead))
+                    {
+                        clients.Remove(clients[i]);
+                    }
+                }
+
+
             });
             thread.IsBackground = false;
             thread.Start();

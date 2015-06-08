@@ -12,16 +12,20 @@ namespace Client
         static void Main(string[] args)
         {
             Console.WriteLine("Client");
+
             var client = new Client();
+            client.ConnectSockets();
+
             Thread thread = new Thread(() =>
             {
-                while (true)
+                while (client.SocketWrite.Connected)
                 {
                     client.SendMessageToServer(Console.ReadLine());
                 }
             });
             thread.IsBackground = false;
             thread.Start();
+
             client.GetMessages();
         }
     }
