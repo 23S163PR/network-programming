@@ -13,39 +13,44 @@ namespace ChatServer
 		public static Hashtable ClientsList = new Hashtable();
 
 		private static void Main(string[] args)
-		{ 
+		{
 			var serverSocket = new TcpListener(IPAddress.Any, ServerPort);
-			// var clientSocket = default(TcpClient);
+			var clientSocket = default(TcpClient);
 
 			serverSocket.Start();
 			Console.WriteLine("Chat Server Started....");
-
-			while (true)
+			try
 			{
-				var clientSocket = serverSocket.AcceptTcpClient();
+				while (true)
+				{
+					clientSocket = serverSocket.AcceptTcpClient();
 
-				var buffer = new byte[MaxMessageSizeInBytes];
+					var buffer = new byte[MaxMessageSizeInBytes];
 
-				var networkStream = clientSocket.GetStream();
-				networkStream.Read(buffer, 0, clientSocket.ReceiveBufferSize);
+					var networkStream = clientSocket.GetStream();
+					networkStream.Read(buffer, 0, clientSocket.ReceiveBufferSize);
 
-				var message = new Message().BytesDeserializeToMessage(buffer);
+					var message = new Message().BytesDeserializeToMessage(buffer);
 
-				ClientsList.Add(message, clientSocket);
+					ClientsList.Add(message, clientSocket);
 
-				Broadcast(message);
+					Broadcast(message);
 
-				Console.WriteLine("{0} - Joined Chat", message.Name);
+					Console.WriteLine("{0} - Joined Chat", message.Name);
 
-				var client = new Client();
-				client.StartClient(clientSocket);
+					var client = new Client();
+					client.StartClient(clientSocket);
+				}
 			}
+			catch
+			{
+				if (clientSocket != null)
+					clientSocket.Close();
 
-			// -- Unreachable code, can be commented out -- //
-			//clientSocket.Close();
-			//serverSocket.Stop();
-			//Console.WriteLine("exit");
-			//Console.ReadLine();
+				serverSocket.Stop();
+				Console.WriteLine("exit");
+				Console.ReadLine();
+			}
 		}
 
 		public static void Broadcast(Message message)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
@@ -23,13 +22,13 @@ namespace ChatClient
 		private readonly TcpClient _clientSocket = new TcpClient();
 		private NetworkStream _serverStream = default(NetworkStream);
 
-		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
-
 		public MainWindow()
 		{
 			InitializeComponent();
 			DataContext = this;
 		}
+
+		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
 
 		private void SendMessageButton_OnClick(object sender, EventArgs e)
 		{
@@ -53,13 +52,13 @@ namespace ChatClient
 
 				_serverStream = _clientSocket.GetStream();
 
-				var ctThread = new Thread(GetMessage);
-				ctThread.Start();
+				var chatThread = new Thread(GetMessage);
+				chatThread.Start();
 			}
 			catch
 			{
 				_clientSocket.Close();
-				MessageBox.Show("Can't connect");
+                MessageBox.Show("Can't connect");
 			}
 		}
 
@@ -81,7 +80,7 @@ namespace ChatClient
 			catch
 			{
 				_clientSocket.Close();
-                MessageBox.Show("Connection Lost");
+				MessageBox.Show("Connection Lost");
 			}
 		}
 
@@ -92,7 +91,7 @@ namespace ChatClient
 
 		private void SendMessage()
 		{
-			if (NameTextBox.Text.Length == 0 && _clientSocket.Connected == false)
+			if (!_clientSocket.Connected)
 				return;
 
 			var message = new Message
@@ -103,11 +102,11 @@ namespace ChatClient
 			};
 
 			var byteData = message.SerializeToBytes();
-            _serverStream.Write(byteData, 0, byteData.Length);
+			_serverStream.Write(byteData, 0, byteData.Length);
 			_serverStream.Flush();
 
 			MessageTextBox.Clear();
-        }
+		}
 
 		private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
 		{
@@ -120,7 +119,8 @@ namespace ChatClient
 
 	public static class ItemControlExtensions
 	{
-		public static void CheckAppendMessage(this ItemsControl control, ObservableCollection<Message> list, Message message, bool waitUntilReturn = false)
+		public static void CheckAppendMessage(this ItemsControl control, ObservableCollection<Message> list, Message message,
+			bool waitUntilReturn = false)
 		{
 			Action append = () => list.Add(message);
 			if (control.CheckAccess())
@@ -141,20 +141,22 @@ namespace ChatClient
 	// TODO:
 	public class ScrollViewerExtenders : DependencyObject
 	{
-		public static readonly DependencyProperty AutoScrollToEndProperty = DependencyProperty.RegisterAttached("AutoScrollToEnd", typeof(bool), typeof(ScrollViewerExtenders), new UIPropertyMetadata(default(bool), OnAutoScrollToEndChanged));
+		public static readonly DependencyProperty AutoScrollToEndProperty =
+			DependencyProperty.RegisterAttached("AutoScrollToEnd", typeof (bool), typeof (ScrollViewerExtenders),
+				new UIPropertyMetadata(default(bool), OnAutoScrollToEndChanged));
 
 		/// <summary>
-		/// Returns the value of the AutoScrollToEndProperty
+		///     Returns the value of the AutoScrollToEndProperty
 		/// </summary>
 		/// <param name="obj">The dependency-object whichs value should be returned</param>
 		/// <returns>The value of the given property</returns>
 		public static bool GetAutoScrollToEnd(DependencyObject obj)
 		{
-			return (bool)obj.GetValue(AutoScrollToEndProperty);
+			return (bool) obj.GetValue(AutoScrollToEndProperty);
 		}
 
 		/// <summary>
-		/// Sets the value of the AutoScrollToEndProperty
+		///     Sets the value of the AutoScrollToEndProperty
 		/// </summary>
 		/// <param name="obj">The dependency-object whichs value should be set</param>
 		/// <param name="value">The value which should be assigned to the AutoScrollToEndProperty</param>
@@ -164,8 +166,8 @@ namespace ChatClient
 		}
 
 		/// <summary>
-		/// This method will be called when the AutoScrollToEnd
-		/// property was changed
+		///     This method will be called when the AutoScrollToEnd
+		///     property was changed
 		/// </summary>
 		/// <param name="s">The sender (the ListBox)</param>
 		/// <param name="e">Some additional information</param>
@@ -173,12 +175,9 @@ namespace ChatClient
 		{
 			var scrollViewer = obj as ScrollViewer;
 
-			var handler = new SizeChangedEventHandler((_, __) =>
-			{
-				scrollViewer.ScrollToEnd();
-			});
+			var handler = new SizeChangedEventHandler((_, __) => { scrollViewer.ScrollToEnd(); });
 
-			if ((bool)e.NewValue)
+			if ((bool) e.NewValue)
 				scrollViewer.SizeChanged += handler;
 			else
 				scrollViewer.SizeChanged -= handler;

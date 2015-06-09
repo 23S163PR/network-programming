@@ -5,32 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChatClient"
         mc:Ignorable="d"
-        Title="Chat" Height="350" Width="525" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" KeyDown="MainWindow_OnKeyDown">
-    <Grid>
-       <Grid.RowDefinitions>
-		   <RowDefinition Height="Auto"/>
-			<RowDefinition Height="*"/>
-			<RowDefinition Height="Auto"/>
+        Title="Chat" Height="350" Width="525" WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        KeyDown="MainWindow_OnKeyDown">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
-		
+
 		<WrapPanel Grid.Row="0" Height="34" HorizontalAlignment="Left">
-			<TextBox Name="NameTextBox" Width="200" Height="30" VerticalContentAlignment="Center"/>
-			<Button Name="ConnectButton" Width="100" Height="30" Content="Connect To Server" Click="ConnectButton_OnClick"/>
+			<TextBox Name="NameTextBox" Width="200" Height="30" VerticalContentAlignment="Center" />
+			<Button Name="ConnectButton" Width="100" Height="30" Content="Connect To Server" Click="ConnectButton_OnClick" />
 		</WrapPanel>
 		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" local:ScrollViewerExtenders.AutoScrollToEnd="True">
 			<ItemsControl Name="ChatItemsControl" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
-					  ItemsSource="{Binding MessageList}">
+			              ItemsSource="{Binding MessageList}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<local:MessageUC></local:MessageUC>
+						<local:MessageUC />
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
 		</ScrollViewer>
 
 		<WrapPanel Grid.Row="2" Height="34" HorizontalAlignment="Left">
-			<TextBox Name="MessageTextBox" Width="417" Height="30" VerticalContentAlignment="Center"/>
-			<Button Name="SendMessageButton" Width="100" Height="30" Content="Send Message" Click="SendMessageButton_OnClick"/>
+			<TextBox Name="MessageTextBox" Width="417" Height="30" VerticalContentAlignment="Center" />
+			<Button Name="SendMessageButton" Width="100" Height="30" Content="Send Message" Click="SendMessageButton_OnClick" />
 		</WrapPanel>
 
 	</Grid>

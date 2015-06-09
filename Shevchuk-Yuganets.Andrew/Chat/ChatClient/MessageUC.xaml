@@ -1,17 +1,20 @@
 ﻿<UserControl x:Class="ChatClient.MessageUC"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:ChatClient"
-             mc:Ignorable="d" 
-             d:DesignHeight="60" d:DesignWidth="300" >
+             mc:Ignorable="d"
+             d:DesignHeight="60" d:DesignWidth="300">
 	<UserControl.Resources>
-		<local:TimeConverter x:Key="TimeConverter"></local:TimeConverter>
+		<local:TimeConverter x:Key="TimeConverter" />
 	</UserControl.Resources>
-    <Grid>
-		<Label Name="NameLabel" Content="{Binding Path = Name}" HorizontalAlignment="Left" VerticalAlignment="Center" Width="auto"/>
-		<Label Name="TextLabel" Content="{Binding Path = Text}" HorizontalAlignment="Left" VerticalAlignment="Center" Width="auto" Margin="30,0,0,0"/>
-		<Label Name="TimeLabel" Content="{Binding Path = Time, Converter={StaticResource TimeConverter}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="auto"/>
+	<Grid>
+		<Label Name="NameLabel" Content="{Binding Path = Name}" HorizontalAlignment="Left" VerticalAlignment="Center"
+		       Width="auto" />
+		<Label Name="TextLabel" Content="{Binding Path = Text}" HorizontalAlignment="Center" VerticalAlignment="Center"
+		       Width="auto" />
+		<Label Name="TimeLabel" Content="{Binding Path = Time, Converter={StaticResource TimeConverter}}"
+		       HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="auto" />
 	</Grid>
 </UserControl>

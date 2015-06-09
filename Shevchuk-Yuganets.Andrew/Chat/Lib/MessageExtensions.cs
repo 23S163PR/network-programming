@@ -5,7 +5,7 @@ namespace Lib
 {
 	public static class MessageExtensions
 	{
-		private static readonly XmlSerializer XmlSerializer = new XmlSerializer(typeof(Message));
+		private static readonly XmlSerializer XmlSerializer = new XmlSerializer(typeof (Message));
 
 		public static byte[] SerializeToBytes(this Message message)
 		{
@@ -19,7 +19,7 @@ namespace Lib
 		{
 			var memoryStream = new MemoryStream(buffer);
 
-			return (Message)XmlSerializer.Deserialize(memoryStream);
+			return (Message) XmlSerializer.Deserialize(memoryStream);
 		}
 	}
 }
