@@ -5,9 +5,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using ChatJsonObject;
 using chat_client.CustomMessaqgeControl;
+using ChatJsonObject;
 
 namespace chat_client
 {
@@ -29,15 +28,15 @@ namespace chat_client
                 
                 _client.CloseClient();
             };
-
-            //tbBox.TextChanged += (sender, args) => tbBox.ScrollToEnd();
         }
 
        
         private void BSend_OnClick(object sender, RoutedEventArgs e)
         {
-            if(!tbText.Text.Any())return;
+            if(!tbText.Text.Any() || _client.StopNetwork)return;
+
             _client.SendMessage(tbText.Text);
+            ContentViewer.ScrollToEnd();
         }
 
         private void ConectClick(object sender, RoutedEventArgs e)
@@ -52,6 +51,13 @@ namespace chat_client
                     MessageBox.Show("Incorect Ip or Port");
                     return;
                 }
+
+                if (!tbLogin.Text.Any())
+                {
+                    MessageBox.Show("Enter Login");
+                    return;
+                }
+
                 _client.Username = tbLogin.Text;
                 _client.Connect(IPAddress.Parse(tbIp.Text), int.Parse(tbPort.Text));
             }
@@ -71,56 +77,19 @@ namespace chat_client
                 var data = _client.ReceiveRun();
                 if (data != null)
                 {
-                    if (data.Message.Length <= 0) continue;
-                    var formatedData = string.Format("\n>>{0}\n{1}\n{2}", data.Login, data.Message, DateTime.Now);
-                    MessageContainer.ApendMessage(data);
-                   // tbBox.CheckAppendText(formatedData);
+                    if (data.Message.Length <= 0) continue;                  
+                    MessageContainer.ApendMessage(data, _client.Username == data.Login); 
                 }
-            }
-           // if (!_client.ServerAviable) 
-                //tbBox.CheckAppendText(string.Format("\n>>{0}\n{1}\n{2}", "Server", "Server not Aviable!!!", DateTime.Now));
-        }
-    }// MessageContainer.Children.Add(/*new MessageControl(data.Login, data.Message)*/new Label() { Content = data.Message });
-
-    public static class TextBoxExtensions
-    {
-        public static void CheckAppendText(this TextBoxBase textBox, string msg, bool waitUntilReturn = false)
-        {
-            Action append = () => textBox.AppendText(msg);
-            if (textBox.CheckAccess())
-            {
-                append();
-            }
-            else if (waitUntilReturn)
-            {
-                textBox.Dispatcher.Invoke(append);
-            }
-            else
-            {
-                textBox.Dispatcher.BeginInvoke(append);
-               
             }
         }
     }
 
     public static class StackPanelExtensions
     {
-        public static void ApendMessage(this StackPanel panel, ChatObject msg, bool waitUntilReturn = false)
+        public static void ApendMessage(this StackPanel panel, ChatObject msg, bool aligmentFlag)
         {
-            Action append = () => panel.Children.Add(new MessageControl(msg.Login, msg.Message));
-            if (panel.CheckAccess())
-            {
-                append();
-            }
-            else if (waitUntilReturn)
-            {
-                panel.Dispatcher.Invoke(append);
-            }
-            else
-            {
-                panel.Dispatcher.BeginInvoke(append);
-
-            }
+            Action append = () => panel.Children.Add(new MessageControl(msg.Login, msg.Message,aligmentFlag)); 
+            panel.Dispatcher.BeginInvoke(append);   
         }
     }
 }

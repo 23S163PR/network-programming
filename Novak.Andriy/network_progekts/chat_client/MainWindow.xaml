@@ -8,7 +8,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="5,10"/>
         </Style>
-       
+
         <Style TargetType="TextBox" x:Key="tbContent">
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
@@ -17,7 +17,7 @@
             <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
             <Setter Property="Margin" Value="5"/>
         </Style>
-        
+
         <Style TargetType="TextBox">
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="0,10"/>
@@ -26,7 +26,13 @@
 
 
     </Window.Resources>
-    <StackPanel Background="DimGray">
+    <Window.Background>
+        <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+            <GradientStop Color="Black" Offset="1"/>
+            <GradientStop Color="#FF4C6870"/>
+        </LinearGradientBrush>
+    </Window.Background>
+    <StackPanel>
 
         <DockPanel>
             <Label Content="IP:"/>
@@ -39,9 +45,19 @@
             <Label Content="Login* :" Foreground="DarkRed"/>
             <TextBox Name="tbLogin" HorizontalAlignment="Left"/>
         </DockPanel>
-        <!--<TextBox HorizontalAlignment="Stretch" Height="200" Name="tbBox" Style="{StaticResource tbContent}"/>-->
-        <StackPanel Name="MessageContainer" Height="200" Margin="5"/>
-        <TextBox HorizontalAlignment="Stretch" Height="100" Name="tbText" Style="{StaticResource tbContent}"/>
+        <ScrollViewer Height="200" Margin="5" BorderThickness="4" Opacity="1" Name="ContentViewer"
+                      VerticalScrollBarVisibility="Hidden" BorderBrush="#FFF3F1F1" >
+            <ScrollViewer.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="1"/>
+                    <GradientStop Color="#FF669FB0"/>
+                </LinearGradientBrush>
+            </ScrollViewer.Background>
+            
+            <StackPanel x:Name="MessageContainer" />
+            
+        </ScrollViewer>
+        <TextBox HorizontalAlignment="Stretch" Height="100" Name="tbText" Style="{StaticResource tbContent}" Background="#FF203146" Foreground="Gainsboro"/>
 
         <Button Content="Send" Width="70" HorizontalAlignment="Right" Margin="10,10" Name="bSend" Click="BSend_OnClick" />
     </StackPanel>
