@@ -11,7 +11,6 @@ namespace WindowsApplication2
    
     public partial class Form1 : Form
     {
-
         public ChatClient obj = new ChatClient();
 
         public Form1()
@@ -54,7 +53,15 @@ namespace WindowsApplication2
         {
             if (obj.Logined.Equals(true))
             {
-                obj.SendMessage(TextMessageBox.Text);
+                try
+                {
+                    obj.SendMessage(TextMessageBox.Text);
+                }
+                catch (IOException)
+                {
+                    Application.Exit();
+                    
+                }
                 this.TextMessageBox.Clear();
             }
             else MessageBox.Show("Enter login!");
@@ -79,6 +86,7 @@ namespace WindowsApplication2
             }
 
             this.Text = this.obj.ServerAddress + " :: " + this.LoginBox.Text;
+            // set window title as "%address% :: %login%
             Thread ctThread = new Thread(GetMessage); // login and start chat
             ctThread.Start(); 
 

@@ -15,6 +15,7 @@ namespace WindowsApplication2
         public readonly int Port = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["Port"]); // app.config
         public readonly int BufferSizeBytes = Convert.ToInt32(System.Configuration.ConfigurationSettings.AppSettings["BufferSizeInputBytes"]); // app.config
         public readonly String ServerAddress = System.Configuration.ConfigurationSettings.AppSettings["ServerAddress"]; // app.config        
+        
         public NetworkStream ServerStream;
         public String ReadData;
         public TcpClient ClientSocket;
@@ -46,9 +47,20 @@ namespace WindowsApplication2
         }
         public void SendMessage(String msgText)
         {
+            //try
+            //{
                 byte[] outStream = System.Text.Encoding.ASCII.GetBytes(msgText + "$"); // read text to send from TextMessageBox
-                this.ServerStream.Write(outStream, 0, outStream.Length);  // write message from [0] to [outStream.Length]
+                try
+                {
+                    this.ServerStream.Write(outStream, 0, outStream.Length);  // write message from [0] to [outStream.Length]
+                }
+                catch (IOException)
+                {
+                    MessageBox.Show("Cannot connect to server.");
+                    throw new IOException();
+                }
                 this.ServerStream.Flush();  // clear all buffers and causes any buffered data to be written to the underlying stream.
+            //}
         }
 
         public void ConnectToServer(String login)
