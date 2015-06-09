@@ -4,8 +4,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using ChatJsonObject;
+using chat_client.CustomMessaqgeControl;
 
 namespace chat_client
 {
@@ -28,7 +30,7 @@ namespace chat_client
                 _client.CloseClient();
             };
 
-            tbBox.TextChanged += (sender, args) => { tbBox.ScrollToEnd(); };
+            //tbBox.TextChanged += (sender, args) => tbBox.ScrollToEnd();
         }
 
        
@@ -71,14 +73,14 @@ namespace chat_client
                 {
                     if (data.Message.Length <= 0) continue;
                     var formatedData = string.Format("\n>>{0}\n{1}\n{2}", data.Login, data.Message, DateTime.Now);
-                    tbBox.CheckAppendText(formatedData);
-                    //tbBox.ScrollToEnd();
+                    MessageContainer.ApendMessage(data);
+                   // tbBox.CheckAppendText(formatedData);
                 }
             }
-            if (!_client.ServerAviable) 
-                tbBox.CheckAppendText(string.Format("\n>>{0}\n{1}\n{2}", "Server", "Server not Aviable!!!", DateTime.Now));
+           // if (!_client.ServerAviable) 
+                //tbBox.CheckAppendText(string.Format("\n>>{0}\n{1}\n{2}", "Server", "Server not Aviable!!!", DateTime.Now));
         }
-    }
+    }// MessageContainer.Children.Add(/*new MessageControl(data.Login, data.Message)*/new Label() { Content = data.Message });
 
     public static class TextBoxExtensions
     {
@@ -96,6 +98,28 @@ namespace chat_client
             else
             {
                 textBox.Dispatcher.BeginInvoke(append);
+               
+            }
+        }
+    }
+
+    public static class StackPanelExtensions
+    {
+        public static void ApendMessage(this StackPanel panel, ChatObject msg, bool waitUntilReturn = false)
+        {
+            Action append = () => panel.Children.Add(new MessageControl(msg.Login, msg.Message));
+            if (panel.CheckAccess())
+            {
+                append();
+            }
+            else if (waitUntilReturn)
+            {
+                panel.Dispatcher.Invoke(append);
+            }
+            else
+            {
+                panel.Dispatcher.BeginInvoke(append);
+
             }
         }
     }

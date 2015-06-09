@@ -1,6 +1,7 @@
 ﻿<Window x:Class="chat_client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:MessWindow="clr-namespace:chat_client.CustomMessaqgeControl"
         Title="MainWindow" Height="450" Width="525" SizeToContent="Height">
     <Window.Resources>
         <Style TargetType="Label">
@@ -38,12 +39,10 @@
             <Label Content="Login* :" Foreground="DarkRed"/>
             <TextBox Name="tbLogin" HorizontalAlignment="Left"/>
         </DockPanel>
-        <TextBox HorizontalAlignment="Stretch" Height="200" Name="tbBox" Style="{StaticResource tbContent}"/>
+        <!--<TextBox HorizontalAlignment="Stretch" Height="200" Name="tbBox" Style="{StaticResource tbContent}"/>-->
+        <StackPanel Name="MessageContainer" Height="200" Margin="5"/>
         <TextBox HorizontalAlignment="Stretch" Height="100" Name="tbText" Style="{StaticResource tbContent}"/>
 
         <Button Content="Send" Width="70" HorizontalAlignment="Right" Margin="10,10" Name="bSend" Click="BSend_OnClick" />
-
-
-
     </StackPanel>
 </Window>

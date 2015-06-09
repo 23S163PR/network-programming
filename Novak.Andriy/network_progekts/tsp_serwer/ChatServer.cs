@@ -66,7 +66,7 @@ namespace tsp_serwer
             var defaultCode = ChatCodes.Conected;
             while (socket.Connected)
             {
-                if (socket.Available > 0)
+               // if (socket.Available > 0)
                 {
                     var buff = new byte[socket.Available];
                    
@@ -75,10 +75,10 @@ namespace tsp_serwer
                     message.Append(Encoding.ASCII.GetString(buff));
                     var chatObj = message.ToString().JsonToObject();
 
-                    defaultCode = chatObj != null ? chatObj.Code : ChatCodes.Conected; //if not valid json                
+                    defaultCode = chatObj != null ? chatObj.Code : ChatCodes.Conected; //if not valid json   
+                    ClientStatus(ref socket, defaultCode);//check if client disconect
                 }
-                ClientStatus(ref socket, defaultCode);//check if client disconect
-
+                
                 if (message.Length <= 0 || defaultCode == ChatCodes.CloseConection) continue;
 
                 SendToClients(message.ToString());
