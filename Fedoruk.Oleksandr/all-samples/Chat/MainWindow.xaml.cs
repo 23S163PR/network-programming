@@ -23,16 +23,25 @@ namespace Chat
     /// </summary>
     public partial class MainWindow : Window
     {
-        const int Port = 3333;
-        byte[] Ip = new byte[]{192, 168, 56, 1};
+        Socket socketGet;
+        IPEndPoint pointGet;
+        IPAddress ipAddr;
+        byte[] ipAddressInByte = new byte[] { 192, 168, 56, 1 };
 
+        const int PortSend = 3333;
+        const int PortGet = 2222;
+        const int MaxMessageSizeInBytes = 255;
 
         public MainWindow()
         {
             InitializeComponent();
+            ipAddr = new IPAddress(ipAddressInByte);
+
+            socketGet = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            pointGet = new IPEndPoint(ipAddr, PortGet);
 
             var threadGetMessage = new Thread(GetMessages);
-            threadGetMessage.IsBackground = true; 
+            threadGetMessage.IsBackground = true;
             threadGetMessage.Start();
         }
 
@@ -46,51 +55,30 @@ namespace Chat
 
         public void SendMessage()
         {
-            var client = new TcpClient();
-            client.Connect(new IPAddress(Ip), Port);
-
-            IPHostEntry ipHost = Dns.GetHostEntry("");
-            IPAddress ipAddr = ipHost.AddressList[0];
-
-            //client.Connect(IPAddress.Loopback, Port);
-
-            var stream = client.GetStream();
+            var socketSend = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socketSend.Connect(ipAddr, PortSend);
             var messageInBytes = Encoding.ASCII.GetBytes(tbMessage.Text);
-
-            stream.Write(messageInBytes, 0, messageInBytes.Length);
-            stream.Flush();
-
-            stream.Dispose();
-            client.Close();
+            socketSend.Send(messageInBytes);
+            tbMessage.Text = "";
+            tbMessage.Focus();
         }
 
         public void GetMessages()
-        {
-            const int MaxMessageSizeInBytes = 1024;
-
-            var buffer = new byte[MaxMessageSizeInBytes];
-           // var listener = new TcpListener(IPAddress.Parse(Ip), Port);
-
-            //var listener = new TcpListener(IPAddress.Any, Port);
-            var listener = new TcpListener(new IPAddress(Ip), 2222);
-            listener.Start();
-            Socket socket;
-
+        {     
+            socketGet.Bind(pointGet);
+            socketGet.Listen(2);
             while (true)
             {
                 try
                 {
-                    socket = listener.AcceptSocket();
-                    var received = socket.Receive(buffer);
+                    var socketRes = socketGet.Accept();
+                    byte[] buffer = new byte[MaxMessageSizeInBytes];
+                    var received = socketRes.Receive(buffer);
                     if (received > 0)
                     {
                         var message = Encoding.ASCII.GetString(buffer, 0, received);
-
-                        tbAllMessages.Dispatcher.Invoke(() => { 
-                                                tbAllMessages.Text += message + "\n"; 
-                                                tbMessage.Text = "";
-                                                tbMessage.Focus();
-                        });
+                        message = message.Remove(message.IndexOf("\0"));
+                        tbAllMessages.Dispatcher.Invoke(() => {    tbAllMessages.Text += message + "\n";   });
                     }
                 }
                 catch (Exception e)

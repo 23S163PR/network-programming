@@ -11,7 +11,7 @@ namespace Chat_server
 {
     public class Server
     {
-        List<Socket> participants;
+       // List<Socket> participants;
         Socket socketRead;
         Socket socketWrite;
 
@@ -22,17 +22,15 @@ namespace Chat_server
         const int PortRead = 3333;
         const int PortWrite = 2222;
         const int MaxParticipants = 2;
+        byte[] ipAddressInByte = new byte[] { 192, 168, 56, 1 };
 
         public Server()
         {
-            participants = new List<Socket>();
-
-            byte[] ipAddressInByte = new byte[] { 192, 168, 56, 1 };
+            //participants = new List<Socket>();
+       
             ipAddress = new IPAddress(ipAddressInByte);
-
             endPointRead = new IPEndPoint(ipAddress, PortRead);
             endPointWrite = new IPEndPoint(ipAddress, PortWrite);
-
 
             socketRead = new Socket(endPointRead.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             socketWrite = new Socket(endPointWrite.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -41,7 +39,6 @@ namespace Chat_server
         }
         public void Start()
         {
-            //new Thread(AcceptMessages).Start();
             AcceptMessages();
         }
 
@@ -51,19 +48,32 @@ namespace Chat_server
             socketRead.Listen(MaxParticipants);
             while (true)
             {
-                Console.WriteLine("Waiting for a connection...");
-                var socket = socketRead.Accept();
-                participants.Add(socket);
-                byte[] bArr = new byte[255];
-                var messageInByte = socket.Receive(bArr);
-                var messageInString = Encoding.ASCII.GetString(bArr, 0, messageInByte);
-
-                Console.WriteLine(messageInString);
-                socket.Send(bArr);
-                
+                try
+                {
+                    var socketRes = socketRead.Accept();
+                   // participants.Add(socketRes);
+                    byte[] buffer = new byte[255];
+                    var received = socketRes.Receive(buffer);
+                    if (received > 0)
+                    {    
+                        var messageInString = Encoding.ASCII.GetString(buffer, 0, received);
+                        Console.WriteLine("New message:  {0}", messageInString);
+                        
+                        SendMessage(buffer);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("\n\n{0}\n\n", e.Message);
+                }
             }
+        }
 
-
+        private void SendMessage(byte[] message)
+        {
+            socketWrite = new Socket(endPointWrite.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socketWrite.Connect(ipAddress, PortWrite);
+            socketWrite.Send(message);
         }
 
     }
