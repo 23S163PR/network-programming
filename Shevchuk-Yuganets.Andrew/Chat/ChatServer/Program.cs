@@ -33,7 +33,7 @@ namespace ChatServer
 
 				ClientsList.Add(message, clientSocket);
 
-				Broadcast(message, true /* IsNewClient */);
+				Broadcast(message);
 
 				Console.WriteLine("{0} - Joined Chat", message.Name);
 
@@ -48,17 +48,12 @@ namespace ChatServer
 			//Console.ReadLine();
 		}
 
-		public static void Broadcast(Message message, bool flag)
+		public static void Broadcast(Message message)
 		{
 			foreach (DictionaryEntry item in ClientsList)
 			{
 				var broadcastSocket = (TcpClient) item.Value;
 				var broadcastStream = broadcastSocket.GetStream();
-
-				if (flag)
-					message.IsNewClient = true;
-				else
-					message.IsNewClient = false;
 
 				var byteData = message.SerializeToBytes();
 				broadcastStream.Write(byteData, 0, byteData.Length);

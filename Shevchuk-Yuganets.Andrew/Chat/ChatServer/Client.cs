@@ -32,7 +32,7 @@ namespace ChatServer
 
 					Console.WriteLine("From client - {0}: {1}", message.Name, message.Text);
 
-					Program.Broadcast(message, false /* IsNewClient */);
+					Program.Broadcast(message);
 				}
 				catch (Exception ex)
 				{

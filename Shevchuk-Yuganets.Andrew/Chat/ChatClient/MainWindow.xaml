@@ -17,8 +17,16 @@
 			<TextBox Name="NameTextBox" Width="200" Height="30" VerticalContentAlignment="Center"/>
 			<Button Name="ConnectButton" Width="100" Height="30" Content="Connect To Server" Click="ConnectButton_OnClick"/>
 		</WrapPanel>
-
-		<TextBox Grid.Row="1" Name="ChatTextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" local:ScrollViewerExtenders.AutoScrollToEnd="True">
+			<ItemsControl Name="ChatItemsControl" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+					  ItemsSource="{Binding MessageList}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<local:MessageUC></local:MessageUC>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
 
 		<WrapPanel Grid.Row="2" Height="34" HorizontalAlignment="Left">
 			<TextBox Name="MessageTextBox" Width="417" Height="30" VerticalContentAlignment="Center"/>

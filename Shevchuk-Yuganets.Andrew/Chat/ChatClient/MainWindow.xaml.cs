@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls.Primitives;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Lib;
 
@@ -21,9 +23,12 @@ namespace ChatClient
 		private readonly TcpClient _clientSocket = new TcpClient();
 		private NetworkStream _serverStream = default(NetworkStream);
 
+		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
+
 		public MainWindow()
 		{
 			InitializeComponent();
+			DataContext = this;
 		}
 
 		private void SendMessageButton_OnClick(object sender, EventArgs e)
@@ -36,38 +41,53 @@ namespace ChatClient
 			if (_clientSocket.Connected)
 				return;
 
-			ShowMessage("Conected to Chat Server ...");
-			_clientSocket.Connect(ServerIp, ServerPort);
-			_serverStream = _clientSocket.GetStream();
+			try
+			{
+				_clientSocket.Connect(ServerIp, ServerPort);
 
-			SendMessage();
+				ShowMessage(new Message
+				{
+					Text = "Conected to Chat Server ...",
+					Time = DateTime.Now
+				});
 
-			var ctThread = new Thread(GetMessage);
-			ctThread.Start();
+				_serverStream = _clientSocket.GetStream();
+
+				var ctThread = new Thread(GetMessage);
+				ctThread.Start();
+			}
+			catch
+			{
+				_clientSocket.Close();
+				MessageBox.Show("Can't connect");
+			}
 		}
 
 		private void GetMessage()
 		{
-			while (true)
+			try
 			{
-				_serverStream = _clientSocket.GetStream();
-				var buffer = new byte[MaxMessageSizeInBytes];
-				_serverStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
+				while (true)
+				{
+					_serverStream = _clientSocket.GetStream();
+					var buffer = new byte[MaxMessageSizeInBytes];
+					_serverStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
-				var message = new Message().BytesDeserializeToMessage(buffer);
+					var message = new Message().BytesDeserializeToMessage(buffer);
 
-				// TODO: create new control
-				if (message.IsNewClient)
-					ShowMessage(string.Format("{0} - Joined Chat", message.Name));
-				else
-					ShowMessage(string.Format("{0} says: {1}", message.Name, message.Text));
+					ShowMessage(message);
+				}
+			}
+			catch
+			{
+				_clientSocket.Close();
+                MessageBox.Show("Connection Lost");
 			}
 		}
 
-		// TODO: neew rewrite this method in future
-		private void ShowMessage(string message)
+		private void ShowMessage(Message message)
 		{
-			ChatTextBox.CheckAppendText(Environment.NewLine + " >> " + message);
+			ChatItemsControl.CheckAppendMessage(MessageList, message);
 		}
 
 		private void SendMessage()
@@ -79,7 +99,7 @@ namespace ChatClient
 			{
 				Name = NameTextBox.Text,
 				Text = MessageTextBox.Text,
-				Time = DateTimeOffset.Now
+				Time = DateTime.Now
 			};
 
 			var byteData = message.SerializeToBytes();
@@ -98,24 +118,70 @@ namespace ChatClient
 		}
 	}
 
-	// TODO: neew rewrite this extension method in future
-	public static class TextBoxExtensions
+	public static class ItemControlExtensions
 	{
-		public static void CheckAppendText(this TextBoxBase textBox, string msg, bool waitUntilReturn = false)
+		public static void CheckAppendMessage(this ItemsControl control, ObservableCollection<Message> list, Message message, bool waitUntilReturn = false)
 		{
-			Action append = () => textBox.AppendText(msg);
-			if (textBox.CheckAccess())
+			Action append = () => list.Add(message);
+			if (control.CheckAccess())
 			{
 				append();
 			}
 			else if (waitUntilReturn)
 			{
-				textBox.Dispatcher.Invoke(append);
+				control.Dispatcher.Invoke(append);
 			}
 			else
 			{
-				textBox.Dispatcher.BeginInvoke(append);
+				control.Dispatcher.BeginInvoke(append);
 			}
+		}
+	}
+
+	// TODO:
+	public class ScrollViewerExtenders : DependencyObject
+	{
+		public static readonly DependencyProperty AutoScrollToEndProperty = DependencyProperty.RegisterAttached("AutoScrollToEnd", typeof(bool), typeof(ScrollViewerExtenders), new UIPropertyMetadata(default(bool), OnAutoScrollToEndChanged));
+
+		/// <summary>
+		/// Returns the value of the AutoScrollToEndProperty
+		/// </summary>
+		/// <param name="obj">The dependency-object whichs value should be returned</param>
+		/// <returns>The value of the given property</returns>
+		public static bool GetAutoScrollToEnd(DependencyObject obj)
+		{
+			return (bool)obj.GetValue(AutoScrollToEndProperty);
+		}
+
+		/// <summary>
+		/// Sets the value of the AutoScrollToEndProperty
+		/// </summary>
+		/// <param name="obj">The dependency-object whichs value should be set</param>
+		/// <param name="value">The value which should be assigned to the AutoScrollToEndProperty</param>
+		public static void SetAutoScrollToEnd(DependencyObject obj, bool value)
+		{
+			obj.SetValue(AutoScrollToEndProperty, value);
+		}
+
+		/// <summary>
+		/// This method will be called when the AutoScrollToEnd
+		/// property was changed
+		/// </summary>
+		/// <param name="s">The sender (the ListBox)</param>
+		/// <param name="e">Some additional information</param>
+		public static void OnAutoScrollToEndChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+		{
+			var scrollViewer = obj as ScrollViewer;
+
+			var handler = new SizeChangedEventHandler((_, __) =>
+			{
+				scrollViewer.ScrollToEnd();
+			});
+
+			if ((bool)e.NewValue)
+				scrollViewer.SizeChanged += handler;
+			else
+				scrollViewer.SizeChanged -= handler;
 		}
 	}
 }
