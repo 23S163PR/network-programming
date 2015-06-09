@@ -28,7 +28,7 @@ namespace ChatServer
 					var networkStream = _clientSocket.GetStream();
 					networkStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
-					var message = new Message().Deserialize(buffer);
+					var message = new Message().BytesDeserializeToMessage(buffer);
 
 					Console.WriteLine("From client - {0}: {1}", message.Name, message.Text);
 

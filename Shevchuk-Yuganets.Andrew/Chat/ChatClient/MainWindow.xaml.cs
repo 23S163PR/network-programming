@@ -54,7 +54,7 @@ namespace ChatClient
 				var buffer = new byte[MaxMessageSizeInBytes];
 				_serverStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
-				var message = new Message().Deserialize(buffer);
+				var message = new Message().BytesDeserializeToMessage(buffer);
 
 				// TODO: create new control
 				if (message.IsNewClient)
@@ -82,8 +82,8 @@ namespace ChatClient
 				Time = DateTimeOffset.Now
 			};
 
-			// TODO:
-			_serverStream.Write(message.Serialize(), 0, message.Serialize().Length);
+			var byteData = message.SerializeToBytes();
+            _serverStream.Write(byteData, 0, byteData.Length);
 			_serverStream.Flush();
 
 			MessageTextBox.Clear();

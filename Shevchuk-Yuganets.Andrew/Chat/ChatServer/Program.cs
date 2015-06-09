@@ -29,7 +29,7 @@ namespace ChatServer
 				var networkStream = clientSocket.GetStream();
 				networkStream.Read(buffer, 0, clientSocket.ReceiveBufferSize);
 
-				var message = new Message().Deserialize(buffer);
+				var message = new Message().BytesDeserializeToMessage(buffer);
 
 				ClientsList.Add(message, clientSocket);
 
@@ -60,8 +60,8 @@ namespace ChatServer
 				else
 					message.IsNewClient = false;
 
-				// TODO: 
-				broadcastStream.Write(message.Serialize(), 0, message.Serialize().Length);
+				var byteData = message.SerializeToBytes();
+				broadcastStream.Write(byteData, 0, byteData.Length);
 				broadcastStream.Flush();
 			}
 		}
