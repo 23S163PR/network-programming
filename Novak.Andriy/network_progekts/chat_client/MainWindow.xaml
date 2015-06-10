@@ -1,8 +1,8 @@
 ﻿<Window x:Class="chat_client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:MessWindow="clr-namespace:chat_client.CustomMessaqgeControl"
-        Title="MainWindow" Height="450" Width="525" SizeToContent="Height">
+        
+        Title="Chat" MinHeight="450" MinWidth="490" Width="490" FontFamily="Georgia" >
     <Window.Resources>
         <Style TargetType="Label">
             <Setter Property="FontWeight" Value="Bold"/>
@@ -32,21 +32,29 @@
             <GradientStop Color="#FF4C6870"/>
         </LinearGradientBrush>
     </Window.Background>
-    <StackPanel>
-
-        <DockPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="45"/>
+        </Grid.RowDefinitions>
+        
+        <DockPanel Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left">
             <Label Content="IP:"/>
             <TextBox Name="tbIp"/>
             <Label Content="Port:"/>
             <TextBox Name="tbPort"></TextBox>
             <Button Content="Conect" Width="70" HorizontalAlignment="Right" Margin="10,10" Click="ConectClick"/>
         </DockPanel>
-        <DockPanel>
+        <DockPanel Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left">
             <Label Content="Login* :" Foreground="DarkRed"/>
             <TextBox Name="tbLogin" HorizontalAlignment="Left"/>
         </DockPanel>
-        <ScrollViewer Height="200" Margin="5" BorderThickness="4" Opacity="1" Name="ContentViewer"
-                      VerticalScrollBarVisibility="Hidden" BorderBrush="#FFF3F1F1" >
+       <ScrollViewer Margin="5" BorderThickness="4" Opacity="1" Name="ContentViewer"
+                      VerticalScrollBarVisibility="Hidden" BorderBrush="#FFF3F1F1" HorizontalAlignment="Stretch"
+                     VerticalAlignment="Stretch" Grid.Row="2">
             <ScrollViewer.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="Black" Offset="1"/>
@@ -57,8 +65,10 @@
             <StackPanel x:Name="MessageContainer" />
             
         </ScrollViewer>
-        <TextBox HorizontalAlignment="Stretch" Height="100" Name="tbText" Style="{StaticResource tbContent}" Background="#FF203146" Foreground="Gainsboro"/>
+        <TextBox HorizontalAlignment="Stretch" Name="tbText" Style="{StaticResource tbContent}" 
+                 Background="#FF203146" Foreground="Gainsboro" Grid.Row="3"/>
 
-        <Button Content="Send" Width="70" HorizontalAlignment="Right" Margin="10,10" Name="bSend" Click="BSend_OnClick" />
-    </StackPanel>
+        <Button Content="Send" Width="70" HorizontalAlignment="Right" Margin="10,10" Name="bSend"
+                Click="BSend_OnClick" Grid.Row="4"/>
+    </Grid>
 </Window>

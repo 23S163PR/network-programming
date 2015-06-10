@@ -22,14 +22,19 @@ namespace chat_client
         
         public void Connect(IPAddress adress, int port)
         {
-            if (_tcpСlient != null)
+            if (_tcpСlient != null && _tcpСlient.Connected)
             {
-                 SendMessage("404", ChatCodes.CloseConection);
+                SendMessage("Offline", ChatCodes.CloseConection);
+            }
+            else
+            {
+                CloseClient();
             }
             _tcpСlient = new TcpClient();
             _tcpСlient.Connect(adress, port); // can return SocketException
             StopNetwork = false;
             ServerAviable = true;
+            SendMessage("Online");
         }
 
         public void CloseClient()

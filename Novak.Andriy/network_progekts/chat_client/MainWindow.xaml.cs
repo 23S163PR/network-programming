@@ -24,7 +24,7 @@ namespace chat_client
           
             Closed += (sender, args) =>
             {
-                _client.SendMessage("404", ChatCodes.CloseConection);
+                _client.SendMessage("Offline", ChatCodes.CloseConection);
                 
                 _client.CloseClient();
             };
@@ -36,7 +36,8 @@ namespace chat_client
             if(!tbText.Text.Any() || _client.StopNetwork)return;
 
             _client.SendMessage(tbText.Text);
-            ContentViewer.ScrollToEnd();
+            tbText.Text = string.Empty; //clear text box after send message
+            ContentViewer.ScrollToEnd(); 
         }
 
         private void ConectClick(object sender, RoutedEventArgs e)

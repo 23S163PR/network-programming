@@ -26,7 +26,15 @@ namespace tsp_serwer
             _clients = new List<Socket>();
             _stopNetwork = false;
             _server = new TcpListener(IPAddress.Any, ServerPort);
-            _server.Start();
+            try
+            {
+                _server.Start();
+            }
+            catch (SocketException e)
+            {
+                Thread.Sleep(2000/*timeout 2 second*/); // reconect to port after timeout
+                StartServer(); 
+            }
             var acceptThread = new Thread(AcceptClients);
             acceptThread.Start();
         }
@@ -63,25 +71,21 @@ namespace tsp_serwer
         {   
             var message = new StringBuilder();
             var socket = (Socket)client;
-            var defaultCode = ChatCodes.Conected;
             while (socket.Connected)
             {
-               // if (socket.Available > 0)
-                {
-                    var buff = new byte[socket.Available];
-                   
-                    socket.Receive(buff);
-                  
-                    message.Append(Encoding.ASCII.GetString(buff));
-                    var chatObj = message.ToString().JsonToObject();
-
-                    defaultCode = chatObj != null ? chatObj.Code : ChatCodes.Conected; //if not valid json   
-                    ClientStatus(ref socket, defaultCode);//check if client disconect
-                }
+                var buff = new byte[socket.Available];
                 
-                if (message.Length <= 0 || defaultCode == ChatCodes.CloseConection) continue;
+                socket.Receive(buff);
+               
+                message.Append(Encoding.ASCII.GetString(buff));
+                var chatObj = message.ToString().JsonToObject();
+
+                var defaultCode = chatObj != null ? chatObj.Code : ChatCodes.Conected;
+               
+                if (message.Length <= 0) continue;
 
                 SendToClients(message.ToString());
+                ClientStatus(ref socket, defaultCode);//check if client disconect
                 message.Clear();
             }
         }
