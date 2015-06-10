@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client
+namespace Message_service_UI
 {
-    class Client
+    public class Client
     {
         private int PortRead;
         private int PortWrite;
@@ -63,24 +63,23 @@ namespace Client
         /// <summary>
         /// get messages
         /// </summary>
-        public void GetMessages()
+        public void GetMessages(MainWindow wnd)
         {
             Thread thread = new Thread(() =>
             {
                 while (SocketRead.Connected)
                 {
                     byte[] messageBytes = new byte[MaxMessageSizeInBytes];
-                        SocketRead.Receive(messageBytes);
+                    SocketRead.Receive(messageBytes);
 
                     ResizeBuffertoRealSize(ref messageBytes);
                     var messageString = Encoding.ASCII.GetString(messageBytes);
 
-                    Console.WriteLine(messageString);
+                   wnd.UIAddMessage(messageString, false);
                 }
             });
             thread.IsBackground = false;
             thread.Start();
-
         }
 
 
@@ -95,6 +94,5 @@ namespace Client
                     Array.Resize(ref arrayToResize, arrayToResize.Length - 1);
 
         }
-
     }
 }
