@@ -1,0 +1,29 @@
+﻿<Window x:Class="wpf_commands.RegisterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:wpf_commands"
+        d:DataContext="{d:DesignInstance Type=local:RegisterModel, IsDesignTimeCreatable=True}"
+        mc:Ignorable="d"
+        Title="Register" 
+        Height="215"
+        Width="250"
+        >
+    <StackPanel Margin="15">
+        <!-- Login -->
+        <TextBlock>Login</TextBlock>
+        <TextBox Text="{Binding Model.Login.Value, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        
+        <!-- Password -->
+        <TextBlock>Password</TextBlock>
+        <TextBox Text="{Binding Model.Password.Value, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        
+        <!-- Confirm Password -->
+        <TextBlock>Confirm Password</TextBlock>
+        <TextBox Text="{Binding Model.PasswordConfirmation.Value, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        
+        <!-- Register Button -->
+        <Button Margin="0 10 0 0" Command="{Binding Register}">Register</Button>
+    </StackPanel>
+</Window>
