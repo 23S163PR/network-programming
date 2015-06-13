@@ -19,7 +19,16 @@ namespace Lib
 		{
 			var memoryStream = new MemoryStream(buffer);
 
-			return (Message) XmlSerializer.Deserialize(memoryStream);
+			return (Message)XmlSerializer.Deserialize(memoryStream);
+		}
+
+		public static void SaveToXml(this Message message)
+		{
+			using (var fs = new FileStream("Message.xml", FileMode.OpenOrCreate))
+			{
+				XmlSerializer.Serialize(fs, message);
+				fs.Flush();
+			}
 		}
 	}
 }

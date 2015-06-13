@@ -3,18 +3,39 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:ChatClient"
+             xmlns:converters="clr-namespace:ChatClient.Converters"
              mc:Ignorable="d"
-             d:DesignHeight="60" d:DesignWidth="300">
+             d:DesignHeight="70" d:DesignWidth="260">
 	<UserControl.Resources>
-		<local:TimeConverter x:Key="TimeConverter" />
+		<converters:TimeConverter x:Key="TimeConverter" />
+		<converters:AvatarConverter x:Key="AvatarConverter" />
 	</UserControl.Resources>
-	<Grid>
-		<Label Name="NameLabel" Content="{Binding Path = Name}" HorizontalAlignment="Left" VerticalAlignment="Center"
-		       Width="auto" />
-		<Label Name="TextLabel" Content="{Binding Path = Text}" HorizontalAlignment="Center" VerticalAlignment="Center"
-		       Width="auto" />
-		<Label Name="TimeLabel" Content="{Binding Path = Time, Converter={StaticResource TimeConverter}}"
-		       HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="auto" />
-	</Grid>
+	<Border BorderBrush="LightSlateGray" BorderThickness="1" CornerRadius="10">
+		<Grid Background="Transparent" Width="260" Height="70">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="60"/>
+				<ColumnDefinition Width="1"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+
+			<Image Name="AvatarImage" Grid.Column="0"  Source="{Binding Path = Avatar, Converter={StaticResource AvatarConverter}}" Width="50" Height="50"/>
+
+			<Border Grid.Column="1" Background="LightSlateGray" Width="1" Height="auto"/>
+
+			<Grid Grid.Column="2">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="24"/>
+					<RowDefinition Height="1"/>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="20"/>
+				</Grid.RowDefinitions>
+
+				<Label Name="NameLabel" Grid.Row="0" Content="{Binding Path = Name}" HorizontalAlignment="Left" FontSize="12" FontWeight="Bold"/>
+				<Border Grid.Row="1" Background="LightSlateGray" Height="1"/>
+				<TextBlock Name="TextLabel" Grid.Row="2" Text="{Binding Path = Text}" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="11" Margin="3,3,0,0"/>
+				<Label Name="TimeLabel" Grid.Row="3" Content="{Binding Path = Time, Converter={StaticResource TimeConverter}}" FontSize="8" FontWeight="Bold"
+		       HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+			</Grid>
+		</Grid>
+	</Border>
 </UserControl>

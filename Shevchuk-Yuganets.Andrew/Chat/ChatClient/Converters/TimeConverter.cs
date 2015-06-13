@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace ChatClient
+namespace ChatClient.Converters
 {
 	public class TimeConverter : IValueConverter
 	{

@@ -7,7 +7,6 @@ namespace ChatServer
 {
 	public class Client
 	{
-		private const int MaxMessageSizeInBytes = 10024;
 		private TcpClient _clientSocket;
 
 		public void StartClient(TcpClient inputClientSocket)
@@ -19,7 +18,7 @@ namespace ChatServer
 
 		private void DoChat()
 		{
-			var buffer = new byte[MaxMessageSizeInBytes];
+			var buffer = new byte[GlobalConfig.MaxMessageSizeInBytes];
 
 			while (true)
 			{
@@ -28,7 +27,8 @@ namespace ChatServer
 					var networkStream = _clientSocket.GetStream();
 					networkStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
-					var message = new Message().BytesDeserializeToMessage(buffer);
+					var message = new Message();
+					message.BytesDeserializeToMessage(buffer);
 
 					Console.WriteLine("From client - {0}: {1}", message.Name, message.Text);
 

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Xml.Serialization;
 using Lib;
 
 namespace ChatClient
@@ -14,42 +17,57 @@ namespace ChatClient
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private const string ServerIp = "127.0.0.1";
-		private const int ServerPort = 8888;
-		//private const string ServerIp = "192.168.1.99";
-		//private const int ServerPort = 1337;
-		private const int MaxMessageSizeInBytes = 10024;
+		private Config _config;
+
 		private readonly TcpClient _clientSocket = new TcpClient();
 		private NetworkStream _serverStream = default(NetworkStream);
 
+		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
+
 		public MainWindow()
 		{
-			InitializeComponent();
+			LoadConfigXml();
+			ConnectToServer();
+
+            InitializeComponent();
 			DataContext = this;
 		}
 
-		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
-
-		private void SendMessageButton_OnClick(object sender, EventArgs e)
+		private void LoadConfigXml()
 		{
-			SendMessage();
-		}
-
-		private void ConnectButton_OnClick(object sender, EventArgs e)
-		{
-			if (_clientSocket.Connected)
-				return;
-
+			var xml = new XmlSerializer(typeof(Config));
 			try
 			{
-				_clientSocket.Connect(ServerIp, ServerPort);
-
-				ShowMessage(new Message
+				using (var fileStream = new FileStream("Config.xml", FileMode.Open))
 				{
-					Text = "Conected to Chat Server ...",
-					Time = DateTime.Now
-				});
+					_config = (Config)xml.Deserialize(fileStream);
+					fileStream.Flush();
+				}
+			}
+			catch
+			{
+				_config = new Config
+				{
+					ServerIp = "127.0.0.1",
+					ServerPort = 8888,
+					UserAvatarPath = @"avatar.jpeg",
+					UserName = "Mazillka"
+				};
 
+				using (var fileStream = new FileStream("Config.xml", FileMode.Create))
+				{
+					xml.Serialize(fileStream, _config);
+					fileStream.Flush();
+				}
+				Trace.WriteLine("Created Config.xml File");
+			}
+		}
+
+		public void ConnectToServer()
+		{
+			try
+			{
+				_clientSocket.Connect(_config.ServerIp, _config.ServerPort);
 				_serverStream = _clientSocket.GetStream();
 
 				var chatThread = new Thread(GetMessage);
@@ -58,6 +76,7 @@ namespace ChatClient
 			catch
 			{
 				_clientSocket.Close();
+				_serverStream.Dispose();
                 MessageBox.Show("Can't connect");
 			}
 		}
@@ -69,7 +88,8 @@ namespace ChatClient
 				while (true)
 				{
 					_serverStream = _clientSocket.GetStream();
-					var buffer = new byte[MaxMessageSizeInBytes];
+
+					var buffer = new byte[GlobalConfig.MaxMessageSizeInBytes];
 					_serverStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
 					var message = new Message().BytesDeserializeToMessage(buffer);
@@ -80,13 +100,19 @@ namespace ChatClient
 			catch
 			{
 				_clientSocket.Close();
-				MessageBox.Show("Connection Lost");
+				_serverStream.Dispose();
+                MessageBox.Show("Connection Lost");
 			}
 		}
 
 		private void ShowMessage(Message message)
 		{
 			ChatItemsControl.CheckAppendMessage(MessageList, message);
+		}
+
+		private void SendMessageButton_OnClick(object sender, EventArgs e)
+		{
+			SendMessage();
 		}
 
 		private void SendMessage()
@@ -96,7 +122,8 @@ namespace ChatClient
 
 			var message = new Message
 			{
-				Name = NameTextBox.Text,
+				Avatar = File.ReadAllBytes("avatar.jpeg"),
+				Name = _config.UserName,
 				Text = MessageTextBox.Text,
 				Time = DateTime.Now
 			};
@@ -116,6 +143,12 @@ namespace ChatClient
 			}
 		}
 	}
+
+
+
+	/// <summary>
+	/// 
+	/// </summary>
 
 	public static class ItemControlExtensions
 	{

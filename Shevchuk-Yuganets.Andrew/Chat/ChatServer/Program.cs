@@ -9,7 +9,6 @@ namespace ChatServer
 	internal class Program
 	{
 		private const int ServerPort = 8888;
-		private const int MaxMessageSizeInBytes = 10024;
 		public static Hashtable ClientsList = new Hashtable();
 
 		private static void Main(string[] args)
@@ -25,27 +24,31 @@ namespace ChatServer
 				{
 					clientSocket = serverSocket.AcceptTcpClient();
 
-					var buffer = new byte[MaxMessageSizeInBytes];
+					var buffer = new byte[GlobalConfig.MaxMessageSizeInBytes];
 
 					var networkStream = clientSocket.GetStream();
 					networkStream.Read(buffer, 0, clientSocket.ReceiveBufferSize);
 
-					var message = new Message().BytesDeserializeToMessage(buffer);
+					var message = new Message();
+					message.BytesDeserializeToMessage(buffer);
 
 					ClientsList.Add(message, clientSocket);
 
 					Broadcast(message);
 
-					Console.WriteLine("{0} - Joined Chat", message.Name);
+					//Console.WriteLine("{0} - Joined Chat", message.Name);
 
 					var client = new Client();
 					client.StartClient(clientSocket);
 				}
 			}
-			catch
+			catch(Exception ex)
 			{
-				if (clientSocket != null)
+				if (clientSocket.Connected)
 					clientSocket.Close();
+
+				Console.WriteLine(ex.Message);
+				Console.WriteLine(ex.Source);
 
 				serverSocket.Stop();
 				Console.WriteLine("exit");

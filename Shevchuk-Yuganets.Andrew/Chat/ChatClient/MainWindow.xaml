@@ -9,28 +9,23 @@
         KeyDown="MainWindow_OnKeyDown">
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
-		<WrapPanel Grid.Row="0" Height="34" HorizontalAlignment="Left">
-			<TextBox Name="NameTextBox" Width="200" Height="30" VerticalContentAlignment="Center" />
-			<Button Name="ConnectButton" Width="100" Height="30" Content="Connect To Server" Click="ConnectButton_OnClick" />
-		</WrapPanel>
-		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" local:ScrollViewerExtenders.AutoScrollToEnd="True">
+		<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" local:ScrollViewerExtenders.AutoScrollToEnd="True">
 			<ItemsControl Name="ChatItemsControl" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
 			              ItemsSource="{Binding MessageList}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<local:MessageUC />
+						<local:MessageUC Margin="3,3,0,0" Width="260" Height="70" HorizontalAlignment="Left"/>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
 		</ScrollViewer>
 
-		<WrapPanel Grid.Row="2" Height="34" HorizontalAlignment="Left">
-			<TextBox Name="MessageTextBox" Width="417" Height="30" VerticalContentAlignment="Center" />
+		<WrapPanel Grid.Row="1" Height="34" HorizontalAlignment="Center" Margin="0,3,0,0">
+			<TextBox Name="MessageTextBox" Width="400" Height="30" VerticalContentAlignment="Center" VerticalScrollBarVisibility="Auto"/>
 			<Button Name="SendMessageButton" Width="100" Height="30" Content="Send Message" Click="SendMessageButton_OnClick" />
 		</WrapPanel>
 
