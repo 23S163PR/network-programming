@@ -8,49 +8,53 @@ namespace ChatServer
 {
 	internal class Program
 	{
-		private const int ServerPort = 8888;
 		public static Hashtable ClientsList = new Hashtable();
 
 		private static void Main(string[] args)
 		{
-			var serverSocket = new TcpListener(IPAddress.Any, ServerPort);
+			var serverSocket = new TcpListener(IPAddress.Any, NetworkSettings.ServerPort);
 			var clientSocket = default(TcpClient);
+			var networkStream = default(NetworkStream);
 
 			serverSocket.Start();
 			Console.WriteLine("Chat Server Started....");
+
 			try
 			{
 				while (true)
 				{
 					clientSocket = serverSocket.AcceptTcpClient();
 
-					var buffer = new byte[GlobalConfig.MaxMessageSizeInBytes];
+					var buffer = new byte[NetworkSettings.MaxMessageSizeInBytes];
 
-					var networkStream = clientSocket.GetStream();
+					networkStream = clientSocket.GetStream();
 					networkStream.Read(buffer, 0, clientSocket.ReceiveBufferSize);
 
-					var message = new Message();
-					message.BytesDeserializeToMessage(buffer);
+					var message = GlobalMethods.DeserializeBytesToMessage(buffer);
 
 					ClientsList.Add(message, clientSocket);
 
 					Broadcast(message);
 
-					//Console.WriteLine("{0} - Joined Chat", message.Name);
+					Console.WriteLine("{0} - Joined Chat", message.Name);
+					Console.WriteLine("From client - {0}: {1}", message.Name, message.Text);
 
 					var client = new Client();
 					client.StartClient(clientSocket);
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
-				if (clientSocket.Connected)
-					clientSocket.Close();
-
 				Console.WriteLine(ex.Message);
-				Console.WriteLine(ex.Source);
 
 				serverSocket.Stop();
+
+				if (clientSocket != null)
+					clientSocket.Close();
+
+				if (networkStream != null)
+					networkStream.Dispose();
+
 				Console.WriteLine("exit");
 				Console.ReadLine();
 			}
@@ -63,8 +67,8 @@ namespace ChatServer
 				var broadcastSocket = (TcpClient) item.Value;
 				var broadcastStream = broadcastSocket.GetStream();
 
-				var byteData = message.SerializeToBytes();
-				broadcastStream.Write(byteData, 0, byteData.Length);
+				var bytes = GlobalMethods.SerializeMessageToBytes(message);
+				broadcastStream.Write(bytes, 0, bytes.Length);
 				broadcastStream.Flush();
 			}
 		}

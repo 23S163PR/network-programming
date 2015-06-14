@@ -13,7 +13,7 @@ namespace ChatClient.Converters
 			try
 			{
 				var image = new BitmapImage();
-				using (var byteStream = new MemoryStream((byte[])value))
+				using (var byteStream = new MemoryStream((byte[]) value))
 				{
 					image.BeginInit();
 					image.StreamSource = byteStream;

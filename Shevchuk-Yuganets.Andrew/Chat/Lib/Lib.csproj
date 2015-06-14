@@ -40,9 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GlobalConfig.cs" />
+    <Compile Include="GlobalMethods.cs" />
+    <Compile Include="NetworkSettings.cs" />
     <Compile Include="Message.cs" />
-    <Compile Include="MessageExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

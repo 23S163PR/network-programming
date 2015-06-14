@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
 using Lib;
 
@@ -17,44 +18,41 @@ namespace ChatClient
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private Config _config;
-
 		private readonly TcpClient _clientSocket = new TcpClient();
+		private UserSettings _config;
 		private NetworkStream _serverStream = default(NetworkStream);
-
-		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
 
 		public MainWindow()
 		{
 			LoadConfigXml();
 			ConnectToServer();
 
-            InitializeComponent();
+			InitializeComponent();
 			DataContext = this;
 		}
 
+		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
+
 		private void LoadConfigXml()
 		{
-			var xml = new XmlSerializer(typeof(Config));
+			var xml = new XmlSerializer(typeof (UserSettings));
 			try
 			{
-				using (var fileStream = new FileStream("Config.xml", FileMode.Open))
+				using (var fileStream = new FileStream("UserSettings.xml", FileMode.Open))
 				{
-					_config = (Config)xml.Deserialize(fileStream);
+					_config = (UserSettings) xml.Deserialize(fileStream);
 					fileStream.Flush();
 				}
 			}
 			catch
 			{
-				_config = new Config
+				_config = new UserSettings
 				{
-					ServerIp = "127.0.0.1",
-					ServerPort = 8888,
-					UserAvatarPath = @"avatar.jpeg",
-					UserName = "Mazillka"
+					UserName = "Mazillka",
+					UserAvatarPath = "smile.png"
 				};
 
-				using (var fileStream = new FileStream("Config.xml", FileMode.Create))
+				using (var fileStream = new FileStream("UserSettings.xml", FileMode.Create))
 				{
 					xml.Serialize(fileStream, _config);
 					fileStream.Flush();
@@ -65,9 +63,13 @@ namespace ChatClient
 
 		public void ConnectToServer()
 		{
+			if (_clientSocket.Connected)
+				return;
+
 			try
 			{
-				_clientSocket.Connect(_config.ServerIp, _config.ServerPort);
+				_clientSocket.Connect(NetworkSettings.ServerIp, NetworkSettings.ServerPort);
+
 				_serverStream = _clientSocket.GetStream();
 
 				var chatThread = new Thread(GetMessage);
@@ -75,9 +77,13 @@ namespace ChatClient
 			}
 			catch
 			{
-				_clientSocket.Close();
-				_serverStream.Dispose();
-                MessageBox.Show("Can't connect");
+				if (_clientSocket != null)
+					_clientSocket.Close();
+
+				if (_serverStream != null)
+					_serverStream.Dispose();
+
+				MessageBox.Show("Can't connect");
 			}
 		}
 
@@ -88,11 +94,10 @@ namespace ChatClient
 				while (true)
 				{
 					_serverStream = _clientSocket.GetStream();
-
-					var buffer = new byte[GlobalConfig.MaxMessageSizeInBytes];
+					var buffer = new byte[NetworkSettings.MaxMessageSizeInBytes];
 					_serverStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
-					var message = new Message().BytesDeserializeToMessage(buffer);
+					var message = GlobalMethods.DeserializeBytesToMessage(buffer);
 
 					ShowMessage(message);
 				}
@@ -101,7 +106,7 @@ namespace ChatClient
 			{
 				_clientSocket.Close();
 				_serverStream.Dispose();
-                MessageBox.Show("Connection Lost");
+				MessageBox.Show("Connection Lost");
 			}
 		}
 
@@ -122,14 +127,16 @@ namespace ChatClient
 
 			var message = new Message
 			{
-				Avatar = File.ReadAllBytes("avatar.jpeg"),
+				//Avatar = File.ReadAllBytes(_config.UserAvatarPath),
+				Avatar = new byte[0],
 				Name = _config.UserName,
 				Text = MessageTextBox.Text,
 				Time = DateTime.Now
 			};
 
-			var byteData = message.SerializeToBytes();
-			_serverStream.Write(byteData, 0, byteData.Length);
+			var bytes = GlobalMethods.SerializeMessageToBytes(message);
+
+			_serverStream.Write(bytes, 0, bytes.Length);
 			_serverStream.Flush();
 
 			MessageTextBox.Clear();
@@ -145,11 +152,8 @@ namespace ChatClient
 	}
 
 
-
 	/// <summary>
-	/// 
 	/// </summary>
-
 	public static class ItemControlExtensions
 	{
 		public static void CheckAppendMessage(this ItemsControl control, ObservableCollection<Message> list, Message message,

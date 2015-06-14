@@ -13,28 +13,32 @@
 	<Border BorderBrush="LightSlateGray" BorderThickness="1" CornerRadius="10">
 		<Grid Background="Transparent" Width="260" Height="70">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="60"/>
-				<ColumnDefinition Width="1"/>
-				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="60" />
+				<ColumnDefinition Width="1" />
+				<ColumnDefinition Width="*" />
 			</Grid.ColumnDefinitions>
 
-			<Image Name="AvatarImage" Grid.Column="0"  Source="{Binding Path = Avatar, Converter={StaticResource AvatarConverter}}" Width="50" Height="50"/>
+			<Image Name="AvatarImage" Grid.Column="0"
+			       Source="{Binding Path = Avatar, Converter={StaticResource AvatarConverter}}" Width="50" Height="50" />
 
-			<Border Grid.Column="1" Background="LightSlateGray" Width="1" Height="auto"/>
+			<Border Grid.Column="1" Background="LightSlateGray" Width="1" Height="auto" />
 
 			<Grid Grid.Column="2">
 				<Grid.RowDefinitions>
-					<RowDefinition Height="24"/>
-					<RowDefinition Height="1"/>
-					<RowDefinition Height="*"/>
-					<RowDefinition Height="20"/>
+					<RowDefinition Height="24" />
+					<RowDefinition Height="1" />
+					<RowDefinition Height="*" />
+					<RowDefinition Height="20" />
 				</Grid.RowDefinitions>
 
-				<Label Name="NameLabel" Grid.Row="0" Content="{Binding Path = Name}" HorizontalAlignment="Left" FontSize="12" FontWeight="Bold"/>
-				<Border Grid.Row="1" Background="LightSlateGray" Height="1"/>
-				<TextBlock Name="TextLabel" Grid.Row="2" Text="{Binding Path = Text}" HorizontalAlignment="Left" TextWrapping="Wrap" FontSize="11" Margin="3,3,0,0"/>
-				<Label Name="TimeLabel" Grid.Row="3" Content="{Binding Path = Time, Converter={StaticResource TimeConverter}}" FontSize="8" FontWeight="Bold"
-		       HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+				<Label Name="NameLabel" Grid.Row="0" Content="{Binding Path = Name}" HorizontalAlignment="Left" FontSize="12"
+				       FontWeight="Bold" />
+				<Border Grid.Row="1" Background="LightSlateGray" Height="1" />
+				<TextBlock Name="TextLabel" Grid.Row="2" Text="{Binding Path = Text}" HorizontalAlignment="Left"
+				           TextWrapping="Wrap" FontSize="11" Margin="3,3,0,0" />
+				<Label Name="TimeLabel" Grid.Row="3" Content="{Binding Path = Time, Converter={StaticResource TimeConverter}}"
+				       FontSize="8" FontWeight="Bold"
+				       HorizontalAlignment="Right" VerticalAlignment="Bottom" />
 			</Grid>
 		</Grid>
 	</Border>

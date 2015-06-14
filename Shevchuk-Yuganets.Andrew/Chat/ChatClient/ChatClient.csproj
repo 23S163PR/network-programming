@@ -57,7 +57,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\AvatarConverter.cs" />
-    <Compile Include="Config.cs" />
+    <Compile Include="UserSettings.cs" />
     <Compile Include="Converters\TimeConverter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
