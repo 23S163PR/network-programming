@@ -18,7 +18,7 @@
 			              ItemsSource="{Binding MessageList}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<local:MessageUC Margin="3,3,0,0" Width="260" Height="70" HorizontalAlignment="Left" />
+						<local:MessageUC Margin="3,3,0,0" Width="260" Height="auto" HorizontalAlignment="Left" />
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>

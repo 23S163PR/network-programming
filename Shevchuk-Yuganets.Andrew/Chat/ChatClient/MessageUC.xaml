@@ -11,7 +11,7 @@
 		<converters:AvatarConverter x:Key="AvatarConverter" />
 	</UserControl.Resources>
 	<Border BorderBrush="LightSlateGray" BorderThickness="1" CornerRadius="10">
-		<Grid Background="Transparent" Width="260" Height="70">
+		<Grid Background="Transparent" Width="260" Height="auto">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="60" />
 				<ColumnDefinition Width="1" />
@@ -35,7 +35,7 @@
 				       FontWeight="Bold" />
 				<Border Grid.Row="1" Background="LightSlateGray" Height="1" />
 				<TextBlock Name="TextLabel" Grid.Row="2" Text="{Binding Path = Text}" HorizontalAlignment="Left"
-				           TextWrapping="Wrap" FontSize="11" Margin="3,3,0,0" />
+				           TextWrapping="Wrap" FontSize="11" Margin="3,3,3,3" />
 				<Label Name="TimeLabel" Grid.Row="3" Content="{Binding Path = Time, Converter={StaticResource TimeConverter}}"
 				       FontSize="8" FontWeight="Bold"
 				       HorizontalAlignment="Right" VerticalAlignment="Bottom" />
