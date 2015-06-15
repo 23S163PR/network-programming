@@ -7,7 +7,6 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
 using Lib;
 
@@ -95,6 +94,7 @@ namespace ChatClient
 				{
 					_serverStream = _clientSocket.GetStream();
 					var buffer = new byte[NetworkSettings.MaxMessageSizeInBytes];
+
 					_serverStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
 					var message = GlobalMethods.DeserializeBytesToMessage(buffer);
@@ -127,8 +127,7 @@ namespace ChatClient
 
 			var message = new Message
 			{
-				//Avatar = File.ReadAllBytes(_config.UserAvatarPath),
-				Avatar = new byte[0],
+				Avatar = File.ReadAllBytes(_config.UserAvatarPath),
 				Name = _config.UserName,
 				Text = MessageTextBox.Text,
 				Time = DateTime.Now

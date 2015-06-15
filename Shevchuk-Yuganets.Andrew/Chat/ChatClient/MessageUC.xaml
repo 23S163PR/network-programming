@@ -19,7 +19,7 @@
 			</Grid.ColumnDefinitions>
 
 			<Image Name="AvatarImage" Grid.Column="0"
-			       Source="{Binding Path = Avatar, Converter={StaticResource AvatarConverter}}" Width="50" Height="50" />
+			       Source="{Binding Path = Avatar, Converter={StaticResource AvatarConverter}}" Width="50" Height="50" Stretch="Fill"/>
 
 			<Border Grid.Column="1" Background="LightSlateGray" Width="1" Height="auto" />
 

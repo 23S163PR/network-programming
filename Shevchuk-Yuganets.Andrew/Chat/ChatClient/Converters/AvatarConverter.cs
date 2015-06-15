@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows.Data;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace ChatClient.Converters
@@ -17,7 +19,8 @@ namespace ChatClient.Converters
 				{
 					image.BeginInit();
 					image.StreamSource = byteStream;
-					image.EndInit();
+					image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
 				}
 
 				return image;

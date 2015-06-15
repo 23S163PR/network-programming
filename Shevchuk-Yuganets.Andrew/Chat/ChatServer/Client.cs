@@ -19,12 +19,11 @@ namespace ChatServer
 
 		private void DoChat()
 		{
-			var buffer = new byte[NetworkSettings.MaxMessageSizeInBytes];
-
 			while (true)
 			{
 				try
 				{
+					var buffer = new byte[NetworkSettings.MaxMessageSizeInBytes];
 					var networkStream = _clientSocket.GetStream();
 					networkStream.Read(buffer, 0, _clientSocket.ReceiveBufferSize);
 
