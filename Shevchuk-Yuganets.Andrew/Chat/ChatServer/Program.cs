@@ -34,10 +34,7 @@ namespace ChatServer
 
 					ClientsList.Add(message, clientSocket);
 
-					Broadcast(message);
-
-					Console.WriteLine("{0} - Joined Chat", message.Name);
-					Console.WriteLine("From client - {0}: {1}", message.Name, message.Text);
+					Console.WriteLine("{0}", message.Text);
 
 					var client = new Client();
 					client.StartClient(clientSocket);

@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using Lib;
+using System.Configuration;
 
 namespace ChatClient
 {
@@ -17,29 +18,28 @@ namespace ChatClient
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
 		private readonly TcpClient _clientSocket = new TcpClient();
 		private UserSettings _config;
 		private NetworkStream _serverStream = default(NetworkStream);
 
 		public MainWindow()
 		{
-			LoadConfigXml();
+			// LoadConfigXml();
 			ConnectToServer();
 
 			InitializeComponent();
 			DataContext = this;
 		}
 
-		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
-
 		private void LoadConfigXml()
 		{
-			var xml = new XmlSerializer(typeof (UserSettings));
+			var xml = new XmlSerializer(typeof(UserSettings));
 			try
 			{
 				using (var fileStream = new FileStream("UserSettings.xml", FileMode.Open))
 				{
-					_config = (UserSettings) xml.Deserialize(fileStream);
+					_config = (UserSettings)xml.Deserialize(fileStream);
 					fileStream.Flush();
 				}
 			}
@@ -70,6 +70,15 @@ namespace ChatClient
 				_clientSocket.Connect(NetworkSettings.ServerIp, NetworkSettings.ServerPort);
 
 				_serverStream = _clientSocket.GetStream();
+
+				var bytes = GlobalMethods.SerializeMessageToBytes(new Message
+				{
+					//Text = string.Format("{0} - Joined Chat", _config.UserName),
+					Text = string.Format("{0} - Joined Chat", ConfigurationManager.AppSettings["UserName"]),
+				});
+
+				_serverStream.Write(bytes, 0, bytes.Length);
+				_serverStream.Flush();
 
 				var chatThread = new Thread(GetMessage);
 				chatThread.Start();
@@ -125,13 +134,30 @@ namespace ChatClient
 			if (!_clientSocket.Connected)
 				return;
 
-			var message = new Message
+			var message = default(Message);
+			try
 			{
-				Avatar = File.ReadAllBytes(_config.UserAvatarPath),
-				Name = _config.UserName,
-				Text = MessageTextBox.Text,
-				Time = DateTime.Now
-			};
+				message = new Message
+				{
+					// Avatar = File.ReadAllBytes(_config.UserAvatarPath),
+					Avatar = File.ReadAllBytes(ConfigurationManager.AppSettings["UserAvatarPath"]),
+					// Name = _config.UserName,
+					Name = ConfigurationManager.AppSettings["UserName"],
+					Text = MessageTextBox.Text,
+					Time = DateTime.Now
+				};
+			}
+			catch
+			{
+				message = new Message
+				{
+					Avatar = new byte[0],
+					// Name = _config.UserName,
+					Name = ConfigurationManager.AppSettings["UserName"],
+					Text = MessageTextBox.Text,
+					Time = DateTime.Now
+				};
+			}
 
 			var bytes = GlobalMethods.SerializeMessageToBytes(message);
 
@@ -178,7 +204,7 @@ namespace ChatClient
 	public class ScrollViewerExtenders : DependencyObject
 	{
 		public static readonly DependencyProperty AutoScrollToEndProperty =
-			DependencyProperty.RegisterAttached("AutoScrollToEnd", typeof (bool), typeof (ScrollViewerExtenders),
+			DependencyProperty.RegisterAttached("AutoScrollToEnd", typeof(bool), typeof(ScrollViewerExtenders),
 				new UIPropertyMetadata(default(bool), OnAutoScrollToEndChanged));
 
 		/// <summary>
@@ -188,7 +214,7 @@ namespace ChatClient
 		/// <returns>The value of the given property</returns>
 		public static bool GetAutoScrollToEnd(DependencyObject obj)
 		{
-			return (bool) obj.GetValue(AutoScrollToEndProperty);
+			return (bool)obj.GetValue(AutoScrollToEndProperty);
 		}
 
 		/// <summary>
@@ -213,7 +239,7 @@ namespace ChatClient
 
 			var handler = new SizeChangedEventHandler((_, __) => { scrollViewer.ScrollToEnd(); });
 
-			if ((bool) e.NewValue)
+			if ((bool)e.NewValue)
 				scrollViewer.SizeChanged += handler;
 			else
 				scrollViewer.SizeChanged -= handler;
