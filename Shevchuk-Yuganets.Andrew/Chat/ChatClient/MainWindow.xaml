@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChatClient"
         mc:Ignorable="d"
-        Title="Chat" Height="350" Width="525" WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Title="Chat" Height="356" Width="525" WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
         KeyDown="MainWindow_OnKeyDown">
 	<Grid>
 		<Grid.RowDefinitions>
