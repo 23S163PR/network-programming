@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "trace-demo", "trace-demo\tr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "log4net", "log4net\log4net.csproj", "{C4D42F2E-F9FE-4F9B-943D-75DFB98B4D99}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "echo-service", "echo-service\echo-service.csproj", "{CF9CE8A4-009C-4592-A44C-CFFDFFAD5976}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "echo-service-log-console", "echo-service-log-console\echo-service-log-console.csproj", "{627B495C-62A2-42A2-80C7-B5C01748ABBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,14 @@ Global
 		{C4D42F2E-F9FE-4F9B-943D-75DFB98B4D99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4D42F2E-F9FE-4F9B-943D-75DFB98B4D99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4D42F2E-F9FE-4F9B-943D-75DFB98B4D99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF9CE8A4-009C-4592-A44C-CFFDFFAD5976}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF9CE8A4-009C-4592-A44C-CFFDFFAD5976}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF9CE8A4-009C-4592-A44C-CFFDFFAD5976}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF9CE8A4-009C-4592-A44C-CFFDFFAD5976}.Release|Any CPU.Build.0 = Release|Any CPU
+		{627B495C-62A2-42A2-80C7-B5C01748ABBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{627B495C-62A2-42A2-80C7-B5C01748ABBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{627B495C-62A2-42A2-80C7-B5C01748ABBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{627B495C-62A2-42A2-80C7-B5C01748ABBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
