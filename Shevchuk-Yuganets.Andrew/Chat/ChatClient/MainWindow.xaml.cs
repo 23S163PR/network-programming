@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
@@ -9,7 +10,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Serialization;
 using Lib;
-using System.Configuration;
 
 namespace ChatClient
 {
@@ -18,7 +18,6 @@ namespace ChatClient
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
 		private readonly TcpClient _clientSocket = new TcpClient();
 		private UserSettings _config;
 		private NetworkStream _serverStream = default(NetworkStream);
@@ -32,14 +31,16 @@ namespace ChatClient
 			DataContext = this;
 		}
 
+		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
+
 		private void LoadConfigXml()
 		{
-			var xml = new XmlSerializer(typeof(UserSettings));
+			var xml = new XmlSerializer(typeof (UserSettings));
 			try
 			{
 				using (var fileStream = new FileStream("UserSettings.xml", FileMode.Open))
 				{
-					_config = (UserSettings)xml.Deserialize(fileStream);
+					_config = (UserSettings) xml.Deserialize(fileStream);
 					fileStream.Flush();
 				}
 			}
@@ -74,7 +75,7 @@ namespace ChatClient
 				var bytes = GlobalMethods.SerializeMessageToBytes(new Message
 				{
 					//Text = string.Format("{0} - Joined Chat", _config.UserName),
-					Text = string.Format("{0} - Joined Chat", ConfigurationManager.AppSettings["UserName"]),
+					Text = string.Format("{0} - Joined Chat", ConfigurationManager.AppSettings["UserName"])
 				});
 
 				_serverStream.Write(bytes, 0, bytes.Length);
@@ -204,7 +205,7 @@ namespace ChatClient
 	public class ScrollViewerExtenders : DependencyObject
 	{
 		public static readonly DependencyProperty AutoScrollToEndProperty =
-			DependencyProperty.RegisterAttached("AutoScrollToEnd", typeof(bool), typeof(ScrollViewerExtenders),
+			DependencyProperty.RegisterAttached("AutoScrollToEnd", typeof (bool), typeof (ScrollViewerExtenders),
 				new UIPropertyMetadata(default(bool), OnAutoScrollToEndChanged));
 
 		/// <summary>
@@ -214,7 +215,7 @@ namespace ChatClient
 		/// <returns>The value of the given property</returns>
 		public static bool GetAutoScrollToEnd(DependencyObject obj)
 		{
-			return (bool)obj.GetValue(AutoScrollToEndProperty);
+			return (bool) obj.GetValue(AutoScrollToEndProperty);
 		}
 
 		/// <summary>
@@ -239,7 +240,7 @@ namespace ChatClient
 
 			var handler = new SizeChangedEventHandler((_, __) => { scrollViewer.ScrollToEnd(); });
 
-			if ((bool)e.NewValue)
+			if ((bool) e.NewValue)
 				scrollViewer.SizeChanged += handler;
 			else
 				scrollViewer.SizeChanged -= handler;

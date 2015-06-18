@@ -18,7 +18,7 @@ namespace ChatClient.Converters
 					image.BeginInit();
 					image.StreamSource = byteStream;
 					image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.EndInit();
+					image.EndInit();
 				}
 
 				return image;

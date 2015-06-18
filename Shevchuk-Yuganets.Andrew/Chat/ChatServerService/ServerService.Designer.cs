@@ -1,6 +1,6 @@
 ﻿namespace ChatServerService
 {
-	partial class Service
+	partial class ChatServerService
 	{
 		/// <summary> 
 		/// Required designer variable.
@@ -28,8 +28,11 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			components = new System.ComponentModel.Container();
-			this.ServiceName = "Service1";
+			// 
+			// ChatServerService
+			// 
+			this.ServiceName = "ChatServerService";
+
 		}
 
 		#endregion
