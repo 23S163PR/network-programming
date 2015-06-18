@@ -1,0 +1,35 @@
+﻿<Window x:Class="DogeXplorer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.RowDefinitions>
+			<RowDefinition Height="25"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+        <Button x:Name="LoadMoreTopics"
+                Click="LoadMoreTopics_Click"
+                Grid.Row="0">
+            Load more...
+        </Button>
+
+		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+			<ItemsControl x:Name="TopicsList">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="75"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+
+							<TextBlock Text="{Binding Upvotes}" Grid.Column="0"/>
+							<TextBlock Text="{Binding Title}" Grid.Column="1"/>
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+	</Grid>
+</Window>
