@@ -2,14 +2,18 @@
 using System.Collections;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Threading.Tasks;
+using log4net;
 using Lib;
 
 namespace ChatServerService
 {
 	public partial class ChatServerService : ServiceBase
 	{
+		private static ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
 		public static Hashtable ClientsList = new Hashtable();
 		private readonly TcpListener _serverSocket = new TcpListener(IPAddress.Any, NetworkSettings.ServerPort);
 		private TcpClient _clientSocket = default(TcpClient);
@@ -44,15 +48,15 @@ namespace ChatServerService
 
 							//Console.WriteLine("{0}", message.Text);
 
+							logger.Info(string.Format("{0}", message.Text));
+
 							var client = new Client();
 							client.StartClient(_clientSocket);
 						});
 					}
 				}
-				catch (Exception ex)
+				catch
 				{
-					Console.WriteLine(ex.Message);
-
 					_serverSocket.Stop();
 
 					if (_clientSocket != null)

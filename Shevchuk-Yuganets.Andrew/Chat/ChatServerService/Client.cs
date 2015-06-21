@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
+using log4net;
 using Lib;
 
 namespace ChatServerService
 {
 	public class Client
 	{
+		private static ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
 		private TcpClient _clientSocket;
 
 		public void StartClient(TcpClient inputClientSocket)
@@ -30,6 +34,8 @@ namespace ChatServerService
 					var message = GlobalMethods.DeserializeBytesToMessage(buffer);
 
 					// Console.WriteLine("From client - {0}: {1}", message.Name, message.Text);
+
+					logger.Info(string.Format("From client - {0}: {1}", message.Name, message.Text));
 
 					ChatServerService.Broadcast(message);
 				}

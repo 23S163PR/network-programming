@@ -1,4 +1,5 @@
 ﻿using System.ServiceProcess;
+using log4net.Config;
 
 namespace ChatServerService
 {
@@ -9,6 +10,8 @@ namespace ChatServerService
 		/// </summary>
 		private static void Main()
 		{
+			XmlConfigurator.Configure();
+
 			var servicesToRun = new ServiceBase[]
 			{
 				new ChatServerService()
