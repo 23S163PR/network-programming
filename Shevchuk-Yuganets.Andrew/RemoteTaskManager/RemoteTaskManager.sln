@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteTaskManager", "RemoteTaskManager\RemoteTaskManager.csproj", "{A6E192CC-2839-4A3B-8BAC-395935E26A8B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteTaskManager", "TaskManager\RemoteTaskManager.csproj", "{9C4FB9DB-EAB4-4B36-8D06-17FD2D6A22EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A6E192CC-2839-4A3B-8BAC-395935E26A8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6E192CC-2839-4A3B-8BAC-395935E26A8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6E192CC-2839-4A3B-8BAC-395935E26A8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6E192CC-2839-4A3B-8BAC-395935E26A8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C4FB9DB-EAB4-4B36-8D06-17FD2D6A22EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C4FB9DB-EAB4-4B36-8D06-17FD2D6A22EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C4FB9DB-EAB4-4B36-8D06-17FD2D6A22EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C4FB9DB-EAB4-4B36-8D06-17FD2D6A22EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
