@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
+using Lib;
 
-namespace TaskManager
+namespace RemoteTaskManager
 {
 	public static class DataGridExtension
 	{

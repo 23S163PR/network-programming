@@ -4,25 +4,18 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using Lib;
 
-namespace TaskManager
+namespace RemoteTaskManager
 {
 	public class ProcessManager
 	{
-		private readonly ObservableCollection<ProcessModel> _processList;
-
-		public ObservableCollection<ProcessModel> ProcessList
-		{
-			get
-			{
-				return _processList;
-			}
-		}
-
 		public ProcessManager()
 		{
-			_processList = WmiManager.GetProcessList();
+			ProcessList = WmiManager.GetProcessList();
 		}
+
+		public ObservableCollection<ProcessModel> ProcessList { get; }
 
 		public void UpdateList()
 		{
@@ -33,10 +26,11 @@ namespace TaskManager
 
 			foreach (var process in wmiProcessList)
 			{
-				var tmpProcess = _processList.FirstOrDefault(pr => pr.ProcessId == process.ProcessId);
+				var tmpProcess = ProcessList.FirstOrDefault(pr => pr.ProcessId == process.ProcessId);
 				if (tmpProcess != null)
 				{
-					dispather.Invoke(() => {
+					dispather.Invoke(() =>
+					{
 						tmpProcess.CpuUsage = process.CpuUsage;
 						tmpProcess.MemoryUsage = process.MemoryUsage;
 						tmpProcess.Threads = process.Threads;
@@ -44,12 +38,12 @@ namespace TaskManager
 				}
 				else
 				{
-					dispather.Invoke(() => _processList.Add(process));
+					dispather.Invoke(() => ProcessList.Add(process));
 				}
 			}
 
 			var closedProcess = new List<int>();
-			foreach (var process in _processList)
+			foreach (var process in ProcessList)
 			{
 				var tmpProcess = wmiProcessList.FirstOrDefault(pr => pr.ProcessId == process.ProcessId);
 				if (tmpProcess == null)
@@ -60,7 +54,7 @@ namespace TaskManager
 
 			foreach (var processId in closedProcess)
 			{
-				dispather.Invoke(() => _processList.Remove(_processList.FirstOrDefault(pr => pr.ProcessId == processId)));
+				dispather.Invoke(() => ProcessList.Remove(ProcessList.FirstOrDefault(pr => pr.ProcessId == processId)));
 			}
 		}
 

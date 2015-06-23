@@ -2,15 +2,15 @@
 using System.Timers;
 using System.Windows;
 
-namespace TaskManager
+namespace RemoteTaskManager
 {
 	/// <summary>
 	///     Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private readonly Timer _timer;
 		private readonly ProcessManager _processManager;
+		private readonly Timer _timer;
 
 		public MainWindow()
 		{
@@ -19,7 +19,7 @@ namespace TaskManager
 			_processManager = new ProcessManager();
 
 			_timer = new Timer(1000); // 1000ms - 1sec
-            _timer.Elapsed += timer_Tick;
+			_timer.Elapsed += timer_Tick;
 			_timer.Enabled = true;
 		}
 
@@ -32,13 +32,13 @@ namespace TaskManager
 
 		private void timer_Tick(object sender, EventArgs e)
 		{
-            _processManager.UpdateList();
-        }
+			_processManager.UpdateList();
+		}
 
 		private void EndProcess_Click(object sender, RoutedEventArgs e)
 		{
 			if (MessageBox.Show("Kill Process?", "Kill Process", MessageBoxButton.OKCancel, MessageBoxImage.Warning) ==
-				MessageBoxResult.OK)
+			    MessageBoxResult.OK)
 			{
 				_processManager.KillProcess(ProcessDataGrid.GetSelectedProcessId());
 			}
@@ -47,7 +47,7 @@ namespace TaskManager
 		private void ChangePriority_Click(object sender, RoutedEventArgs e)
 		{
 			// This is guaranteed to be PriorityMenuItem
-			var priorityMenuItem = (PriorityMenuItem)sender;
+			var priorityMenuItem = (PriorityMenuItem) sender;
 			_processManager.SetProcessPriority(ProcessDataGrid.GetSelectedProcessId(), priorityMenuItem.PriorityValue);
 		}
 
@@ -56,7 +56,7 @@ namespace TaskManager
 			_timer.Stop();
 
 			var currentPriority = _processManager.GetProcessPriority(ProcessDataGrid.GetSelectedProcessId());
-            foreach (PriorityMenuItem menuItem in PriorityMenuItem.Items)
+			foreach (PriorityMenuItem menuItem in PriorityMenuItem.Items)
 			{
 				menuItem.IsChecked = menuItem.PriorityValue == currentPriority;
 			}

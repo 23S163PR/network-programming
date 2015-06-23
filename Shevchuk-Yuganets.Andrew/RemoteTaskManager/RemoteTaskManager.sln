@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteTaskManager", "Remote
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteTaskManagerService", "RemoteTaskManagerService\RemoteTaskManagerService.csproj", "{1D631C97-C266-44C3-B79C-7FBEFFF9CCB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib", "Lib\Lib.csproj", "{B5E43C1D-0D3A-4511-8E30-4F3063DB1683}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1D631C97-C266-44C3-B79C-7FBEFFF9CCB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D631C97-C266-44C3-B79C-7FBEFFF9CCB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D631C97-C266-44C3-B79C-7FBEFFF9CCB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E43C1D-0D3A-4511-8E30-4F3063DB1683}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E43C1D-0D3A-4511-8E30-4F3063DB1683}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E43C1D-0D3A-4511-8E30-4F3063DB1683}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E43C1D-0D3A-4511-8E30-4F3063DB1683}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

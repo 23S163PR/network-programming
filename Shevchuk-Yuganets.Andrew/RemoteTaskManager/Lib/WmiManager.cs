@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Management;
 
-namespace TaskManager
+namespace Lib
 {
 	public class WmiManager
 	{
