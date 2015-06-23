@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ChatServerServiceLogConsole
 {
-	class Program
+	internal class Program
 	{
-		static void Main(string[] args)
+		private static void Main(string[] args)
 		{
 			const int port = 1339;
 			var sender = new IPEndPoint(IPAddress.Any, 0);
@@ -15,10 +15,17 @@ namespace ChatServerServiceLogConsole
 
 			while (true)
 			{
-				var bytes = client.Receive(ref sender);
-				var logMessage = Encoding.ASCII.GetString(bytes);
+				try
+				{
+					var bytes = client.Receive(ref sender);
+					var logMessage = Encoding.ASCII.GetString(bytes);
 
-				Console.WriteLine(logMessage);
+					Console.WriteLine(logMessage);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.Message);
+				}
 			}
 		}
 	}

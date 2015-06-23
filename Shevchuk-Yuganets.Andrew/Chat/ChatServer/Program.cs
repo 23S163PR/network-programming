@@ -19,9 +19,9 @@ namespace ChatServer
 			serverSocket.Start();
 			Console.WriteLine("Chat Server Started....");
 
-			try
+			while (true)
 			{
-				while (true)
+				try
 				{
 					clientSocket = serverSocket.AcceptTcpClient();
 
@@ -39,21 +39,10 @@ namespace ChatServer
 					var client = new Client();
 					client.StartClient(clientSocket);
 				}
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex.Message);
-
-				serverSocket.Stop();
-
-				if (clientSocket != null)
-					clientSocket.Close();
-
-				if (networkStream != null)
-					networkStream.Dispose();
-
-				Console.WriteLine("exit");
-				Console.ReadLine();
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.Message);
+				}
 			}
 		}
 

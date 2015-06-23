@@ -9,8 +9,7 @@ namespace ChatServerService
 {
 	public class Client
 	{
-		private static ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
+		private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		private TcpClient _clientSocket;
 
 		public void StartClient(TcpClient inputClientSocket)
@@ -33,15 +32,13 @@ namespace ChatServerService
 
 					var message = GlobalMethods.DeserializeBytesToMessage(buffer);
 
-					// Console.WriteLine("From client - {0}: {1}", message.Name, message.Text);
-
 					logger.Info(string.Format("From client - {0}: {1}", message.Name, message.Text));
 
 					ChatServerService.Broadcast(message);
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine(ex.Message);
+					logger.Error(string.Format("{0}", ex.Message));
 				}
 			}
 		}

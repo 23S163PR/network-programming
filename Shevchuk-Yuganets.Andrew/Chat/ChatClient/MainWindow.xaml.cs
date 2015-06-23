@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Configuration;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Xml.Serialization;
 using Lib;
 
 namespace ChatClient
@@ -19,12 +16,10 @@ namespace ChatClient
 	public partial class MainWindow : Window
 	{
 		private readonly TcpClient _clientSocket = new TcpClient();
-		private UserSettings _config;
 		private NetworkStream _serverStream = default(NetworkStream);
 
 		public MainWindow()
 		{
-			// LoadConfigXml();
 			ConnectToServer();
 
 			InitializeComponent();
@@ -32,34 +27,6 @@ namespace ChatClient
 		}
 
 		public ObservableCollection<Message> MessageList { get; } = new ObservableCollection<Message>();
-
-		private void LoadConfigXml()
-		{
-			var xml = new XmlSerializer(typeof (UserSettings));
-			try
-			{
-				using (var fileStream = new FileStream("UserSettings.xml", FileMode.Open))
-				{
-					_config = (UserSettings) xml.Deserialize(fileStream);
-					fileStream.Flush();
-				}
-			}
-			catch
-			{
-				_config = new UserSettings
-				{
-					UserName = "Mazillka",
-					UserAvatarPath = "smile.png"
-				};
-
-				using (var fileStream = new FileStream("UserSettings.xml", FileMode.Create))
-				{
-					xml.Serialize(fileStream, _config);
-					fileStream.Flush();
-				}
-				Trace.WriteLine("Created Config.xml File");
-			}
-		}
 
 		public void ConnectToServer()
 		{
@@ -74,7 +41,6 @@ namespace ChatClient
 
 				var bytes = GlobalMethods.SerializeMessageToBytes(new Message
 				{
-					//Text = string.Format("{0} - Joined Chat", _config.UserName),
 					Text = string.Format("{0} - Joined Chat", ConfigurationManager.AppSettings["UserName"])
 				});
 
@@ -93,14 +59,15 @@ namespace ChatClient
 					_serverStream.Dispose();
 
 				MessageBox.Show("Can't connect");
+				Application.Current.Shutdown();
 			}
 		}
 
 		private void GetMessage()
 		{
-			try
+			while (true)
 			{
-				while (true)
+				try
 				{
 					_serverStream = _clientSocket.GetStream();
 					var buffer = new byte[NetworkSettings.MaxMessageSizeInBytes];
@@ -111,12 +78,17 @@ namespace ChatClient
 
 					ShowMessage(message);
 				}
-			}
-			catch
-			{
-				_clientSocket.Close();
-				_serverStream.Dispose();
-				MessageBox.Show("Connection Lost");
+				catch
+				{
+					if (_clientSocket != null)
+						_clientSocket.Close();
+
+					if (_serverStream != null)
+						_serverStream.Dispose();
+
+					MessageBox.Show("Connection Lost");
+					Application.Current.Shutdown();
+				}
 			}
 		}
 
@@ -140,9 +112,7 @@ namespace ChatClient
 			{
 				message = new Message
 				{
-					// Avatar = File.ReadAllBytes(_config.UserAvatarPath),
 					Avatar = File.ReadAllBytes(ConfigurationManager.AppSettings["UserAvatarPath"]),
-					// Name = _config.UserName,
 					Name = ConfigurationManager.AppSettings["UserName"],
 					Text = MessageTextBox.Text,
 					Time = DateTime.Now
@@ -153,7 +123,6 @@ namespace ChatClient
 				message = new Message
 				{
 					Avatar = new byte[0],
-					// Name = _config.UserName,
 					Name = ConfigurationManager.AppSettings["UserName"],
 					Text = MessageTextBox.Text,
 					Time = DateTime.Now
@@ -174,76 +143,6 @@ namespace ChatClient
 			{
 				SendMessage();
 			}
-		}
-	}
-
-
-	/// <summary>
-	/// </summary>
-	public static class ItemControlExtensions
-	{
-		public static void CheckAppendMessage(this ItemsControl control, ObservableCollection<Message> list, Message message,
-			bool waitUntilReturn = false)
-		{
-			Action append = () => list.Add(message);
-			if (control.CheckAccess())
-			{
-				append();
-			}
-			else if (waitUntilReturn)
-			{
-				control.Dispatcher.Invoke(append);
-			}
-			else
-			{
-				control.Dispatcher.BeginInvoke(append);
-			}
-		}
-	}
-
-	// TODO:
-	public class ScrollViewerExtenders : DependencyObject
-	{
-		public static readonly DependencyProperty AutoScrollToEndProperty =
-			DependencyProperty.RegisterAttached("AutoScrollToEnd", typeof (bool), typeof (ScrollViewerExtenders),
-				new UIPropertyMetadata(default(bool), OnAutoScrollToEndChanged));
-
-		/// <summary>
-		///     Returns the value of the AutoScrollToEndProperty
-		/// </summary>
-		/// <param name="obj">The dependency-object whichs value should be returned</param>
-		/// <returns>The value of the given property</returns>
-		public static bool GetAutoScrollToEnd(DependencyObject obj)
-		{
-			return (bool) obj.GetValue(AutoScrollToEndProperty);
-		}
-
-		/// <summary>
-		///     Sets the value of the AutoScrollToEndProperty
-		/// </summary>
-		/// <param name="obj">The dependency-object whichs value should be set</param>
-		/// <param name="value">The value which should be assigned to the AutoScrollToEndProperty</param>
-		public static void SetAutoScrollToEnd(DependencyObject obj, bool value)
-		{
-			obj.SetValue(AutoScrollToEndProperty, value);
-		}
-
-		/// <summary>
-		///     This method will be called when the AutoScrollToEnd
-		///     property was changed
-		/// </summary>
-		/// <param name="s">The sender (the ListBox)</param>
-		/// <param name="e">Some additional information</param>
-		public static void OnAutoScrollToEndChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
-		{
-			var scrollViewer = obj as ScrollViewer;
-
-			var handler = new SizeChangedEventHandler((_, __) => { scrollViewer.ScrollToEnd(); });
-
-			if ((bool) e.NewValue)
-				scrollViewer.SizeChanged += handler;
-			else
-				scrollViewer.SizeChanged -= handler;
 		}
 	}
 }

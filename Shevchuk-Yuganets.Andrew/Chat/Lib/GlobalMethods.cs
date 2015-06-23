@@ -21,14 +21,5 @@ namespace Lib
 
 			return (Message) XmlSerializer.Deserialize(memoryStream);
 		}
-
-		public static void SaveToXml(Message message)
-		{
-			using (var fileStrem = new FileStream("Message.xml", FileMode.OpenOrCreate))
-			{
-				XmlSerializer.Serialize(fileStrem, message);
-				fileStrem.Flush();
-			}
-		}
 	}
 }

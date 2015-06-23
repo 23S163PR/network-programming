@@ -12,8 +12,7 @@ namespace ChatServerService
 {
 	public partial class ChatServerService : ServiceBase
 	{
-		private static ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
+		private static readonly ILog logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		public static Hashtable ClientsList = new Hashtable();
 		private readonly TcpListener _serverSocket = new TcpListener(IPAddress.Any, NetworkSettings.ServerPort);
 		private TcpClient _clientSocket = default(TcpClient);
@@ -29,9 +28,10 @@ namespace ChatServerService
 			Task.Run(() =>
 			{
 				_serverSocket.Start();
-				try
+
+				while (true)
 				{
-					while (true)
+					try
 					{
 						_clientSocket = _serverSocket.AcceptTcpClient();
 
@@ -46,27 +46,24 @@ namespace ChatServerService
 
 							ClientsList.Add(message, _clientSocket);
 
-							//Console.WriteLine("{0}", message.Text);
-
 							logger.Info(string.Format("{0}", message.Text));
 
 							var client = new Client();
 							client.StartClient(_clientSocket);
 						});
 					}
-				}
-				catch
-				{
-					_serverSocket.Stop();
+					catch (Exception ex)
+					{
+						logger.Error(string.Format("{0}", ex.Message));
 
-					if (_clientSocket != null)
-						_clientSocket.Close();
+						_serverSocket.Stop();
 
-					if (_networkStream != null)
-						_networkStream.Dispose();
+						if (_clientSocket != null)
+							_clientSocket.Close();
 
-					//Console.WriteLine("exit");
-					//Console.ReadLine();
+						if (_networkStream != null)
+							_networkStream.Dispose();
+					}
 				}
 			});
 		}
@@ -86,7 +83,7 @@ namespace ChatServerService
 		{
 			foreach (DictionaryEntry item in ClientsList)
 			{
-				var broadcastSocket = (TcpClient)item.Value;
+				var broadcastSocket = (TcpClient) item.Value;
 				var broadcastStream = broadcastSocket.GetStream();
 
 				var bytes = GlobalMethods.SerializeMessageToBytes(message);
