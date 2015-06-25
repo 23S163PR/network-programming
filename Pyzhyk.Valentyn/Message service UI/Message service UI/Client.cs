@@ -1,98 +1,114 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Windows;
+using Lib;
 
 namespace Message_service_UI
 {
     public class Client
     {
-        private int PortRead;
-        private int PortWrite;
-        private IPAddress IpAddress;
         private const int MaxMessageSizeInBytes = 1024;
-
-        public Socket SocketRead { get; private set; }
-        public Socket SocketWrite { get; private set; }
+        private readonly int _portRead;
+        private readonly int _portWrite;
+        public IPAddress IpAddress;
+        public Socket SocketRead { get; }
+        public Socket SocketWrite { get; }
+        public string Login { get; set; }
+        public bool isConnected { get; set; }
 
         /// <summary>
-        /// initialize ports and sockets
+        ///     initialize ports and sockets
         /// </summary>
         public Client()
         {
-            PortRead = 1337;
-            PortWrite = 1338;
-            //IpAddress = IPAddress.Parse("192.168.1.99");
+            _portRead = 1337;
+            _portWrite = 1338;
             IpAddress = IPAddress.Loopback;
+            Login = "user";
+            // connecting to Alex server
+            //_portRead = 1337;
+            //_portWrite = 1337; 
+            //_ipAddress = IPAddress.Parse("192.168.1.50");
 
             SocketRead = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             SocketWrite = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        }
 
+        ~Client()
+        {
+            SocketRead.Close();
+            SocketWrite.Close();
+            SocketWrite.Dispose();
+            SocketRead.Dispose();
         }
 
         /// <summary>
-        /// connect sockets
+        ///     Connect sockets and starting to get messages
+        /// </summary>
+        public void StartNetwork(ObservableCollection<Message> messages)
+        {
+            ConnectSockets();
+            GetMessages(messages);
+        }
+
+        /// <summary>
+        ///     connect sockets
         /// </summary>
         public void ConnectSockets()
         {
-            SocketRead.Connect(IpAddress, PortRead);
-            SocketWrite.Connect(IpAddress, PortWrite);
+            try
+            {
+                SocketWrite.Connect(IpAddress, _portWrite);
+                SocketRead.Connect(IpAddress, _portRead);
+                isConnected = true;
+            }
+            catch (Exception)
+            {
+                isConnected = false;
+            }
         }
 
         /// <summary>
-        /// Send message to server
+        ///     Send message to server
         /// </summary>
         /// <param name="message"></param>
         public void SendMessageToServer(string message)
         {
-            byte[] messageBytes = new byte[message.Length];
-            messageBytes = Encoding.ASCII.GetBytes(message);
+            // var messageBytes = Encoding.ASCII.GetBytes(message);
+            var messageBytes =
+                GlobalMethods.SerializeMessageToBytes(new Message
+                {
+                    MessageText = message,
+                    Login = Login,
+                    Time = DateTime.Now
+                });
+
             SocketWrite.Send(messageBytes);
-            //SocketWrite.Close();
-            //SocketRead.Close();
-            //testing
-            //SocketRead.Disconnect(false);
-            //SocketWrite.Disconnect(false);
-            //testing
         }
 
         /// <summary>
-        /// get messages
+        ///     get messages
         /// </summary>
-        public void GetMessages(MainWindow wnd)
+        public void GetMessages(ObservableCollection<Message> messages)
         {
-            Thread thread = new Thread(() =>
+            var thread = new Thread(() =>
             {
                 while (SocketRead.Connected)
                 {
-                    byte[] messageBytes = new byte[MaxMessageSizeInBytes];
+                    var messageBytes = new byte[MaxMessageSizeInBytes];
                     SocketRead.Receive(messageBytes);
 
-                    ResizeBuffertoRealSize(ref messageBytes);
-                    var messageString = Encoding.ASCII.GetString(messageBytes);
-
-                   wnd.UIAddMessage(messageString, false);
+                    // ResizeBuffertoRealSize(ref messageBytes);
+                    //var messageString = Encoding.ASCII.GetString(messageBytes, 0, recieved);
+                    var message = GlobalMethods.DeserializeBytesToMessage(messageBytes);
+                    Application.Current.Dispatcher.Invoke(() => { messages.Add(message); });
                 }
-            });
-            thread.IsBackground = false;
+            })
+            {IsBackground = false};
             thread.Start();
-        }
-
-
-        /// <summary>
-        /// Minimize array
-        /// </summary>
-        /// <param name="arrayToResize"></param>
-        private void ResizeBuffertoRealSize(ref byte[] arrayToResize)
-        {
-            for (int i = arrayToResize.Length - 1; i > 0; i--)
-                if (arrayToResize[i] == 0)
-                    Array.Resize(ref arrayToResize, arrayToResize.Length - 1);
-
         }
     }
 }

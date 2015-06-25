@@ -5,51 +5,82 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Message_service_UI"
         mc:Ignorable="d"
-        Title="Messager" Height="350" Width="525" MinHeight="350" MinWidth="525">
-    <Grid>
+        Title="Messager" Height="350" Width="600" MinHeight="350" MinWidth="600">
+    <Grid Background="Azure">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="3"/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="3" />
+            <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="2">
+        <Grid Grid.Column="0" Name="Settings">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            Margin="10 10 0 0">
+                    <TextBlock Text="Login"
+                               Width="60"
+                               FontSize="14"
+                               HorizontalAlignment="Center" />
+                    <TextBox Width="100"
+                             Name="Login"
+                             Text="Login" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            Margin="10">
+                    <TextBlock Text="IP: "
+                               Width="60"
+                               FontSize="14" />
+                    <TextBox Width="100"
+                             Name="IP"
+                             Text="127.0.0.1" />
+                </StackPanel>
+                <Button Width="100"
+                        Click="ButtonBase_OnClick">
+                    Connect
+                </Button>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Column="2"
+              Name="MsgGrid">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="60"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="60" />
             </Grid.RowDefinitions>
-            <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Hidden"
+            <ScrollViewer VerticalScrollBarVisibility="Hidden"
                           Name="ScrollViewer">
-                <Grid Grid.Column="0" 
-                      Background="Azure">
-                    <StackPanel Name="MessagesPanel"/>
+                <Grid Grid.Column="0">
+                    <StackPanel Name="MessagesPanel" />
+                    <ItemsControl ItemsSource="{Binding Messages}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:MessageControl />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </Grid>
             </ScrollViewer>
-            <Grid Grid.Row="1" 
-                  HorizontalAlignment="Stretch" 
-                  Background="Azure">
+            <Grid Grid.Row="1"
+                  HorizontalAlignment="Stretch">
                 <Grid Height="1"
                       Panel.ZIndex="1"
                       Background="Blue"
-                      VerticalAlignment="Top"/>
-                <StackPanel HorizontalAlignment="Center" 
-                            
-                            Orientation="Horizontal"  
-                            Background="Azure">
-                    <TextBox Margin="10, 10, 10, 10" 
+                      VerticalAlignment="Top" />
+                <StackPanel HorizontalAlignment="Center"
+                            Orientation="Horizontal">
+                    <TextBox Margin="10, 10, 10, 10"
                              Name="MessageTextBox"
                              Width="250"
+                             Background="Azure"
                              FontSize="15"
                              Height="30"
                              VerticalAlignment="Center"
                              BorderThickness="0"
-                             Background="Azure"
-                             KeyUp="MessageTextBox_KeyUp"/>
-                    <Image Source="Image/Mail-Send-icon.png" 
-                           Width="35" 
+                             KeyUp="TextBoxSendMessage_KeyUp" />
+                    <Image Width="35"
+                           Source="Image/Mail-Send-icon.png"
                            Margin="0,10,10,10"
-                           MouseUp="Image_MouseUp"/>
-                    <Grid Margin="10,10,0,10" 
-                          HorizontalAlignment="Right"/>
+                           MouseLeftButtonUp="ImageSendMessage_MouseLeftButtonUp" />
+                    <Grid Margin="10,10,0,10"
+                          HorizontalAlignment="Right" />
                 </StackPanel>
             </Grid>
         </Grid>
