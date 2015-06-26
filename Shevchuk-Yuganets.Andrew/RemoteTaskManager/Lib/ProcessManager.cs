@@ -10,6 +10,8 @@ namespace RemoteTaskManager
 {
 	public class ProcessManager
 	{
+		private ObservableCollection<ProcessModel> _wmiProcessList;
+
 		public ProcessManager()
 		{
 			ProcessList = WmiManager.GetProcessList();
@@ -22,9 +24,10 @@ namespace RemoteTaskManager
 			// TODO: dispatcher must be in MainWindow.xaml.cs - UI
 			// TODO: need implement events for "add", "delete", "update"
 			var dispather = Application.Current.Dispatcher;
-			var wmiProcessList = WmiManager.GetProcessList();
 
-			foreach (var process in wmiProcessList)
+			_wmiProcessList = WmiManager.GetProcessList();
+
+			foreach (var process in _wmiProcessList)
 			{
 				var tmpProcess = ProcessList.FirstOrDefault(pr => pr.ProcessId == process.ProcessId);
 				if (tmpProcess != null)
@@ -45,7 +48,7 @@ namespace RemoteTaskManager
 			var closedProcess = new List<int>();
 			foreach (var process in ProcessList)
 			{
-				var tmpProcess = wmiProcessList.FirstOrDefault(pr => pr.ProcessId == process.ProcessId);
+				var tmpProcess = _wmiProcessList.FirstOrDefault(pr => pr.ProcessId == process.ProcessId);
 				if (tmpProcess == null)
 				{
 					closedProcess.Add(process.ProcessId);
@@ -76,7 +79,8 @@ namespace RemoteTaskManager
 			}
 			catch (Exception ex)
 			{
-				ExceptionHandler.HandleError(OperationType.ChangeProcessPriorityClass, ex);
+				// MessageBox.Show(ex.Message);
+				throw new Exception(ex.Message);
 			}
 		}
 
@@ -88,31 +92,8 @@ namespace RemoteTaskManager
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.Message);
-			}
-		}
-	}
-
-	public enum OperationType
-	{
-		ChangeProcessPriorityClass
-	}
-
-	// TODO: need special exceptions for "GetProcess", "GetProcessPriority", "SetProcessPriority"
-	public class ExceptionHandler
-	{
-		public static void HandleError(OperationType operation, Exception exception)
-		{
-			switch (operation)
-			{
-				case OperationType.ChangeProcessPriorityClass:
-					if (exception is ArgumentException)
-					{
-						MessageBox.Show(exception.Message);
-					}
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(operation), operation, null);
+				// MessageBox.Show(ex.Message);
+				throw new Exception(ex.Message);
 			}
 		}
 	}

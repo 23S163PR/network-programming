@@ -46,6 +46,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Management" />
     <Reference Include="System.Management.Instrumentation" />
@@ -69,7 +70,6 @@
     </ApplicationDefinition>
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="PriorityMenuItem.cs" />
-    <Compile Include="ProcessManager.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
