@@ -1,77 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Windows;
-using Lib;
 
-namespace RemoteTaskManager
+namespace Lib
 {
-	public class ProcessManager
+	public static class ProcessManager
 	{
-		private ObservableCollection<ProcessModel> _wmiProcessList;
-
-		public ProcessManager()
-		{
-			ProcessList = WmiManager.GetProcessList();
-		}
-
-		public ObservableCollection<ProcessModel> ProcessList { get; }
-
-		public void UpdateList()
-		{
-			// TODO: dispatcher must be in MainWindow.xaml.cs - UI
-			// TODO: need implement events for "add", "delete", "update"
-			var dispather = Application.Current.Dispatcher;
-
-			_wmiProcessList = WmiManager.GetProcessList();
-
-			foreach (var process in _wmiProcessList)
-			{
-				var tmpProcess = ProcessList.FirstOrDefault(pr => pr.ProcessId == process.ProcessId);
-				if (tmpProcess != null)
-				{
-					dispather.Invoke(() =>
-					{
-						tmpProcess.CpuUsage = process.CpuUsage;
-						tmpProcess.MemoryUsage = process.MemoryUsage;
-						tmpProcess.Threads = process.Threads;
-					});
-				}
-				else
-				{
-					dispather.Invoke(() => ProcessList.Add(process));
-				}
-			}
-
-			var closedProcess = new List<int>();
-			foreach (var process in ProcessList)
-			{
-				var tmpProcess = _wmiProcessList.FirstOrDefault(pr => pr.ProcessId == process.ProcessId);
-				if (tmpProcess == null)
-				{
-					closedProcess.Add(process.ProcessId);
-				}
-			}
-
-			foreach (var processId in closedProcess)
-			{
-				dispather.Invoke(() => ProcessList.Remove(ProcessList.FirstOrDefault(pr => pr.ProcessId == processId)));
-			}
-		}
-
-		private Process GetProcess(int id)
+		private static Process GetProcess(int id)
 		{
 			return Process.GetProcessById(id);
 		}
 
-		public ProcessPriorityClass GetProcessPriority(int id)
+		public static ProcessPriorityClass GetProcessPriority(int id)
 		{
 			return GetProcess(id).PriorityClass;
 		}
 
-		public void SetProcessPriority(int id, ProcessPriorityClass priority)
+		public static void SetProcessPriority(int id, ProcessPriorityClass priority)
 		{
 			try
 			{
@@ -79,12 +23,11 @@ namespace RemoteTaskManager
 			}
 			catch (Exception ex)
 			{
-				// MessageBox.Show(ex.Message);
 				throw new Exception(ex.Message);
 			}
 		}
 
-		public void KillProcess(int id)
+		public static void KillProcess(int id)
 		{
 			try
 			{
@@ -92,7 +35,6 @@ namespace RemoteTaskManager
 			}
 			catch (Exception ex)
 			{
-				// MessageBox.Show(ex.Message);
 				throw new Exception(ex.Message);
 			}
 		}

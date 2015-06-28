@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 using Lib;
 
 namespace RemoteTaskManager
@@ -7,7 +8,14 @@ namespace RemoteTaskManager
 	{
 		public static int GetSelectedProcessId(this DataGrid dataGrid)
 		{
-			return (dataGrid.SelectedItem as ProcessModel).ProcessId;
+			try
+			{
+				return (dataGrid.SelectedItem as ProcessModel).ProcessId;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message);
+			}
 		}
 	}
 }
