@@ -21,7 +21,7 @@ namespace chat_client
             tbIp.Text = IPAddress.Loopback.ToString();
             tbPort.Text = "4567";
             _client = new ChatClient();
-          
+            lbLostChars.Content = string.Format("Chars Lost: {0}",tbText.MaxLength);
             Closed += (sender, args) =>
             {
                 _client.SendMessage("Offline", ChatCodes.CloseConection);
@@ -82,6 +82,11 @@ namespace chat_client
                     MessageContainer.ApendMessage(data, _client.Username == data.Login); 
                 }
             }
+        }
+
+        private void TbText_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            lbLostChars.Content = string.Format("Chars Lost: {0}",tbText.MaxLength - tbText.Text.Length); 
         }
     }
 
