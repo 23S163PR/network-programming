@@ -34,7 +34,7 @@ namespace Message_service_UI
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs routedEventArgs)
         {
-            if (Client.isConnected) return;
+            if (Client.IsConnected) return;
 
             Client.StartNetwork(Messages);
             Client.Login = Login.Text;

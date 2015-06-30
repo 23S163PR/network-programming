@@ -17,7 +17,7 @@ namespace Message_service_UI
         public Socket SocketRead { get; }
         public Socket SocketWrite { get; }
         public string Login { get; set; }
-        public bool isConnected { get; set; }
+        public bool IsConnected { get; set; }
 
         /// <summary>
         ///     initialize ports and sockets
@@ -63,11 +63,11 @@ namespace Message_service_UI
             {
                 SocketWrite.Connect(IpAddress, _portWrite);
                 SocketRead.Connect(IpAddress, _portRead);
-                isConnected = true;
+                IsConnected = true;
             }
             catch (Exception)
             {
-                isConnected = false;
+                IsConnected = false;
             }
         }
 
